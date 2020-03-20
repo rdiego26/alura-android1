@@ -10,6 +10,7 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        setTitle(R.string.main_activity_title)
 
         val listView: ListView = findViewById(R.id.activity_student_list)
         val studentList = listOf("Aluno 1", "Aluno 2")
