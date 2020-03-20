@@ -11,40 +11,61 @@
         android:id="@+id/activity_student_form_name"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_margin="8dp"
         android:layout_marginStart="8dp"
+        android:layout_marginTop="16dp"
         android:layout_marginEnd="8dp"
         android:hint="@string/student_form_name_hint"
+        android:autofillHints="@string/student_form_name_hint"
+        android:text="@string/student_form_name_hint"
+        android:textColorHint="@color/colorPrimary"
         android:inputType="text"
-        app:layout_constraintBaseline_toBaselineOf="@+id/activity_student_form_email"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <EditText
         android:id="@+id/activity_student_form_email"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_margin="8dp"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="96dp"
         android:layout_marginEnd="8dp"
-        android:hint="@string/student_form_name_hint"
+        android:hint="@string/student_form_email_hint"
+        android:autofillHints="@string/student_form_email_hint"
+        android:text="@string/student_form_email_hint"
+        android:textColorHint="@color/colorPrimary"
         android:inputType="textEmailAddress"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.128" />
 
     <EditText
         android:id="@+id/activity_student_form_phone"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_width="395dp"
+        android:layout_height="43dp"
         android:layout_margin="8dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginEnd="8dp"
-        android:hint="@string/student_form_name_hint"
+        android:hint="@string/student_form_phone_hint"
+        android:autofillHints="@string/student_form_phone_hint"
+        android:text="@string/student_form_phone_hint"
+        android:textColorHint="@color/colorPrimary"
         android:inputType="phone"
-        app:layout_constraintBaseline_toBaselineOf="@+id/activity_student_form_name"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/activity_student_form_email"
+        app:layout_constraintVertical_bias="0.041" />
+
+    <Button
+        android:id="@+id/button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="160dp"
+        android:layout_marginTop="64dp"
+        android:text="@string/student_form_save_button"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/activity_student_form_phone" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
