@@ -1,9 +1,10 @@
-package me.diegoramos.agenda
+package me.diegoramos.agenda.ui.activity
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.ArrayAdapter
 import android.widget.ListView
+import me.diegoramos.agenda.R
 
 class MainActivity : AppCompatActivity() {
 
