@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">Agenda</string>
     <string name="main_activity_title">Students list</string>
+    <string name="student_form_activity_title">Student Form</string>
     <string name="student_form_name_hint">Name</string>
     <string name="student_form_email_hint">E-mail</string>
     <string name="student_form_phone_hint">Phone</string>
