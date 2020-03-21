@@ -24,6 +24,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         android:clickable="true"
         android:focusable="true"
+        android:onClick="goToForm"
         app:srcCompat="@drawable/ic_action_add_student" />
 
 

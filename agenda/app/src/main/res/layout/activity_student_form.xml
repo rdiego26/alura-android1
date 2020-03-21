@@ -58,6 +58,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="160dp"
         android:layout_marginTop="64dp"
+        android:onClick="handleSave"
         android:text="@string/student_form_save_button"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/activity_student_form_phone" />
