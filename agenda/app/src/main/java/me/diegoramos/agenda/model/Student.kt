@@ -1,3 +1,5 @@
 package me.diegoramos.agenda.model
 
-class Student(val name: String, val email: String, val phone: String)
+import java.io.Serializable
+
+class Student (val name: String, val email: String, val phone: String) : Serializable

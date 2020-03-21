@@ -22,11 +22,34 @@ class StudentFormActivity : AppCompatActivity() {
         setContentView(R.layout.activity_student_form)
         setTitle(R.string.student_form_activity_title)
         initializeComponents()
+        handleEdit()
     }
 
     override fun onResume() {
         super.onResume()
-        resetFields()
+        if(!haveStudentExtra()) {
+            resetFields()
+        }
+    }
+
+    private fun haveStudentExtra(): Boolean {
+        val data: Intent = intent
+        val student =
+            data.getSerializableExtra(R.string.constant_student_extra.toString()) as Student?
+
+        return student != null
+    }
+
+    private fun handleEdit() {
+        val data: Intent = intent
+        val student =
+            data.getSerializableExtra(R.string.constant_student_extra.toString()) as Student?
+
+        if(student != null) {
+            nameField?.setText(student.name)
+            emailField?.setText(student.email)
+            phoneField?.setText(student.phone)
+        }
     }
 
     private fun initializeComponents() {
