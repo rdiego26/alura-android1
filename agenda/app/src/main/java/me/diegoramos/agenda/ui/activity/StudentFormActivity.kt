@@ -17,6 +17,8 @@ class StudentFormActivity : AppCompatActivity() {
     private var emailField: EditText? = null
     private var phoneField: EditText? = null
     private val studentDao = StudentDAO
+    private var mode: FormMode = FormMode.REGISTER
+    private var currentStudent: Student? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -50,6 +52,8 @@ class StudentFormActivity : AppCompatActivity() {
             nameField?.setText(student.name)
             emailField?.setText(student.email)
             phoneField?.setText(student.phone)
+            mode = FormMode.UPDATE
+            currentStudent = student
         }
     }
 
@@ -71,12 +75,20 @@ class StudentFormActivity : AppCompatActivity() {
 
     fun handleSave(view: View) {
         val studentName = nameField?.text.toString()
-        val student = Student(name = studentName, email = emailField?.text.toString(),
-            phone= phoneField?.text.toString())
+        val student: Student?
 
         try {
-            studentDao.add(student)
-            Toast.makeText(this, "Student $studentName added!", Toast.LENGTH_LONG).show()
+            if (mode == FormMode.REGISTER) {
+                student = Student(name = studentName, email = emailField?.text.toString(),
+                    phone= phoneField?.text.toString())
+                studentDao.add(student)
+            } else {
+                student = Student(id = currentStudent!!.id, name = studentName, email = emailField?.text.toString(),
+                    phone= phoneField?.text.toString())
+                studentDao.update(student)
+            }
+
+            Toast.makeText(this, "Student $studentName saved!", Toast.LENGTH_LONG).show()
 
             val intent = Intent(this, MainActivity::class.java)
             startActivity(intent)
@@ -85,4 +97,8 @@ class StudentFormActivity : AppCompatActivity() {
         }
 
     }
+}
+
+enum class FormMode {
+    REGISTER, UPDATE
 }

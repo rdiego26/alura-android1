@@ -12,6 +12,14 @@ object StudentDAO {
         students = students + student
     }
 
+    fun getByName(name: String): Student? =
+        students.find { it.name == name }
+
+    fun update(student: Student) {
+        validateAddOrUpdate(student)
+        students = students.filterNot { it.id == student.id } + student
+    }
+
     fun getAll(): List<Student> {
         return students
     }
