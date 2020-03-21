@@ -70,8 +70,8 @@ class StudentFormActivity : AppCompatActivity() {
 
     fun handleSave(view: View) {
         val studentName = nameField?.text.toString()
-        val student = Student(studentName, emailField?.text.toString(),
-            phoneField?.text.toString())
+        val student = Student(name = studentName, email = emailField?.text.toString(),
+            phone= phoneField?.text.toString())
 
         studentDao.add(student)
         Toast.makeText(this, "Student $studentName added!", Toast.LENGTH_LONG).show()
