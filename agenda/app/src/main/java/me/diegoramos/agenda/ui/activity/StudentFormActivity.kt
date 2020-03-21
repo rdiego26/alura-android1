@@ -26,6 +26,21 @@ class StudentFormActivity : AppCompatActivity() {
         phoneField = findViewById(R.id.activity_student_form_phone)
     }
 
+    override fun onResume() {
+        super.onResume()
+        resetFields()
+    }
+
+    private fun resetFields() {
+        nameField = findViewById(R.id.activity_student_form_name)
+        emailField = findViewById(R.id.activity_student_form_email)
+        phoneField = findViewById(R.id.activity_student_form_phone)
+
+        nameField?.text = null
+        emailField?.text = null
+        phoneField?.text = null
+    }
+
     fun handleSave(view: View) {
         val studentName = nameField?.text.toString()
         val student = Student(studentName, emailField?.text.toString(),
