@@ -8,6 +8,7 @@ import android.widget.EditText
 import android.widget.Toast
 import me.diegoramos.agenda.R
 import me.diegoramos.agenda.dao.StudentDAO
+import me.diegoramos.agenda.model.DuplicatedItemException
 import me.diegoramos.agenda.model.Student
 
 class StudentFormActivity : AppCompatActivity() {
@@ -73,10 +74,15 @@ class StudentFormActivity : AppCompatActivity() {
         val student = Student(name = studentName, email = emailField?.text.toString(),
             phone= phoneField?.text.toString())
 
-        studentDao.add(student)
-        Toast.makeText(this, "Student $studentName added!", Toast.LENGTH_LONG).show()
+        try {
+            studentDao.add(student)
+            Toast.makeText(this, "Student $studentName added!", Toast.LENGTH_LONG).show()
 
-        val intent = Intent(this, MainActivity::class.java)
-        startActivity(intent)
+            val intent = Intent(this, MainActivity::class.java)
+            startActivity(intent)
+        } catch (ex: DuplicatedItemException) {
+            Toast.makeText(this, ex.message, Toast.LENGTH_LONG).show()
+        }
+
     }
 }
