@@ -2,7 +2,8 @@
     <string name="app_name">Agenda</string>
     <string name="main_activity_title">Lista de Contatos</string>
 
-    <string name="student_form_activity_title">Formulário</string>
+    <string name="student_form_activity_title">Novo contato</string>
+    <string name="student_form_activity_edit_title">Atualizar Contato</string>
     <string name="student_form_name_hint">Nome</string>
     <string name="student_form_email_hint">E-mail</string>
     <string name="student_form_phone_hint">Telefone</string>
