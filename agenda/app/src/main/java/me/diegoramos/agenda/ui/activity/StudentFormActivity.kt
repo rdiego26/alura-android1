@@ -20,15 +20,18 @@ class StudentFormActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_student_form)
-
-        nameField = findViewById(R.id.activity_student_form_name)
-        emailField = findViewById(R.id.activity_student_form_email)
-        phoneField = findViewById(R.id.activity_student_form_phone)
+        initializeComponents()
     }
 
     override fun onResume() {
         super.onResume()
         resetFields()
+    }
+
+    private fun initializeComponents() {
+        nameField = findViewById(R.id.activity_student_form_name)
+        emailField = findViewById(R.id.activity_student_form_email)
+        phoneField = findViewById(R.id.activity_student_form_phone)
     }
 
     private fun resetFields() {
