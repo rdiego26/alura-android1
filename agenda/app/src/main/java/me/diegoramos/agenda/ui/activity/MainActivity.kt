@@ -1,13 +1,11 @@
 package me.diegoramos.agenda.ui.activity
 
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
-import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.ListView
-import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import me.diegoramos.agenda.R
 import me.diegoramos.agenda.dao.StudentDAO
 import me.diegoramos.agenda.model.Student
