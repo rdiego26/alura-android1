@@ -8,6 +8,7 @@
     <string name="student_form_email_hint">E-mail</string>
     <string name="student_form_phone_hint">Telefone</string>
     <string name="student_form_save_button">Salvar</string>
+    <string name="removed_student_message">Contato %1$s removido!</string>
     <string name="duplicated_item_by_name_message">Já existe outro contato com o nome %1$s</string>
     <string name="duplicated_item_by_email_message">Já existe outro contato com o email %1$s</string>
     <string name="duplicated_item_by_phone_message">Já existe outro contato com o telefone %1$s</string>

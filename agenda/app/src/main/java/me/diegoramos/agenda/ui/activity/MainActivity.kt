@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.View
 import android.widget.ArrayAdapter
 import android.widget.ListView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import me.diegoramos.agenda.R
 import me.diegoramos.agenda.dao.StudentDAO
@@ -15,6 +16,7 @@ class MainActivity : AppCompatActivity() {
     private val studentDAO = StudentDAO
     private var studentListView: ListView? = null
     private var studentList = listOf<Student>()
+    private var listAdapter: ArrayAdapter<Student>? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -36,8 +38,9 @@ class MainActivity : AppCompatActivity() {
 
     private fun setupList() {
         studentList = cleanAndOrderData(studentDAO.getAll())
-        val adapter = createAdapter(studentList)
-        studentListView?.adapter = adapter
+        listAdapter = createAdapter(studentList)
+        studentListView?.adapter = listAdapter
+        val resources = this.resources
 
         studentListView?.setOnItemClickListener { parent, view, position, id ->
             val selectedStudent = parent.getItemAtPosition(position) as Student
@@ -49,6 +52,10 @@ class MainActivity : AppCompatActivity() {
         studentListView?.setOnItemLongClickListener { parent, view, position, id ->
             val selectedStudent = parent.getItemAtPosition(position) as Student
             studentDAO.remove(selectedStudent)
+            Toast.makeText(this, String.format(resources.getString(R.string.removed_student_message), selectedStudent.name),
+                    Toast.LENGTH_SHORT).show()
+
+            this.onResume()
             true
         }
     }
