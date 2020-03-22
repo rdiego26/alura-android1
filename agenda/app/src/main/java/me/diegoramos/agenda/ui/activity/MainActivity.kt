@@ -1,10 +1,11 @@
 package me.diegoramos.agenda.ui.activity
 
 import android.content.Intent
-import android.content.res.Resources
 import android.os.Bundle
 import android.view.ContextMenu
+import android.view.MenuItem
 import android.view.View
+import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.ListView
 import android.widget.Toast
@@ -43,6 +44,24 @@ class MainActivity : AppCompatActivity() {
         menu?.add(R.string.student_list_context_menu_remove)
     }
 
+    override fun onContextItemSelected(item: MenuItem): Boolean {
+        val menuInfo = item.menuInfo as AdapterView.AdapterContextMenuInfo
+        val selectedStudent = listAdapter?.getItem(menuInfo.position) as Student
+        studentDAO.remove(selectedStudent)
+
+        Toast.makeText(
+            this,
+            String.format(
+                resources.getString(R.string.removed_student_message),
+                selectedStudent.name
+            ),
+            Toast.LENGTH_SHORT
+        ).show()
+        this.onResume()
+
+        return super.onContextItemSelected(item)
+    }
+
     private fun initializeComponents() {
         studentListView = findViewById(R.id.activity_student_list)
     }
@@ -51,28 +70,9 @@ class MainActivity : AppCompatActivity() {
         studentList = cleanAndOrderData(studentDAO.getAll())
         listAdapter = createAdapter(studentList)
         studentListView?.adapter = listAdapter
-        val resources = this.resources
 
         configureListItemClick()
-        configureListItemLongClick(resources)
         registerForContextMenu(studentListView)
-    }
-
-    private fun configureListItemLongClick(resources: Resources) {
-        studentListView?.setOnItemLongClickListener { parent, view, position, id ->
-            val selectedStudent = parent.getItemAtPosition(position) as Student
-            studentDAO.remove(selectedStudent)
-            Toast.makeText(
-                this,
-                String.format(
-                    resources.getString(R.string.removed_student_message),
-                    selectedStudent.name
-                ),
-                Toast.LENGTH_SHORT
-            ).show()
-            this.onResume()
-            false
-        }
     }
 
     private fun configureListItemClick() {
