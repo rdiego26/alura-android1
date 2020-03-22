@@ -1,11 +1,11 @@
 package me.diegoramos.agenda.ui.activity
 
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
 import android.widget.EditText
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import me.diegoramos.agenda.R
 import me.diegoramos.agenda.dao.StudentDAO
 import me.diegoramos.agenda.model.DuplicatedItemException
@@ -49,6 +49,7 @@ class StudentFormActivity : AppCompatActivity() {
             data.getSerializableExtra(R.string.constant_student_extra.toString()) as Student?
 
         if(student != null) {
+            setTitle(R.string.student_form_activity_edit_title)
             nameField?.setText(student.name)
             emailField?.setText(student.email)
             phoneField?.setText(student.phone)
@@ -81,11 +82,11 @@ class StudentFormActivity : AppCompatActivity() {
             if (mode == FormMode.REGISTER) {
                 student = Student(name = studentName, email = emailField?.text.toString(),
                     phone= phoneField?.text.toString())
-                studentDao.add(student)
+                studentDao.add(student, this)
             } else {
                 student = Student(id = currentStudent!!.id, name = studentName, email = emailField?.text.toString(),
                     phone= phoneField?.text.toString())
-                studentDao.update(student)
+                studentDao.update(student, this)
             }
 
             Toast.makeText(this, "Student $studentName saved!", Toast.LENGTH_LONG).show()
