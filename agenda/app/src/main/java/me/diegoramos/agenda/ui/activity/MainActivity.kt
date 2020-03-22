@@ -14,7 +14,7 @@ class MainActivity : AppCompatActivity() {
 
     private val studentDAO = StudentDAO
     private var studentListView: ListView? = null
-    private var studentList = listOf<String>()
+    private var studentList = listOf<Student>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,10 +40,16 @@ class MainActivity : AppCompatActivity() {
         studentListView?.adapter = adapter
 
         studentListView?.setOnItemClickListener { parent, view, position, id ->
-            val selectedStudent = studentDAO.getAll().get(position)
+            val selectedStudent = parent.getItemAtPosition(position) as Student
             val intent = prepareIntentToForm()
             intent.putExtra(R.string.constant_student_extra.toString(), selectedStudent)
             startActivity(intent)
+        }
+
+        studentListView?.setOnItemLongClickListener { parent, view, position, id ->
+            val selectedStudent = parent.getItemAtPosition(position) as Student
+            studentDAO.remove(selectedStudent)
+            true
         }
     }
 
@@ -52,11 +58,11 @@ class MainActivity : AppCompatActivity() {
         startActivity(intent)
     }
 
-    private fun createAdapter(studentList: List<String>) =
+    private fun createAdapter(studentList: List<Student>) =
         ArrayAdapter(this, android.R.layout.simple_list_item_1, studentList)
 
     private fun cleanAndOrderData(list: List<Student>) =
-        list.sortedBy { it.name }.map { it.name }
+        list.sortedBy { it.name }
 
     private fun prepareIntentToForm() =
         Intent(this, StudentFormActivity::class.java)

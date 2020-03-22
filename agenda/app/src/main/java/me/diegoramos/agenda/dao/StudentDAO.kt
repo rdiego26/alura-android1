@@ -14,8 +14,7 @@ object StudentDAO {
         students = students + student
     }
 
-    fun getByName(name: String): Student? =
-        students.find { it.name == name }
+    fun remove(student: Student) = run { students = students.filterNot { it.id == student.id } }
 
     fun update(student: Student, context: Context) {
         validateAddOrUpdate(student, context)
