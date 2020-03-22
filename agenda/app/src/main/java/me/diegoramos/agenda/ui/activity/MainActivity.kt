@@ -1,7 +1,9 @@
 package me.diegoramos.agenda.ui.activity
 
 import android.content.Intent
+import android.content.res.Resources
 import android.os.Bundle
+import android.view.ContextMenu
 import android.view.View
 import android.widget.ArrayAdapter
 import android.widget.ListView
@@ -32,6 +34,15 @@ class MainActivity : AppCompatActivity() {
         setupList()
     }
 
+    override fun onCreateContextMenu(
+        menu: ContextMenu?,
+        v: View?,
+        menuInfo: ContextMenu.ContextMenuInfo?
+    ) {
+        super.onCreateContextMenu(menu, v, menuInfo)
+        menu?.add(R.string.student_list_context_menu_remove)
+    }
+
     private fun initializeComponents() {
         studentListView = findViewById(R.id.activity_student_list)
     }
@@ -42,21 +53,34 @@ class MainActivity : AppCompatActivity() {
         studentListView?.adapter = listAdapter
         val resources = this.resources
 
+        configureListItemClick()
+        configureListItemLongClick(resources)
+        registerForContextMenu(studentListView)
+    }
+
+    private fun configureListItemLongClick(resources: Resources) {
+        studentListView?.setOnItemLongClickListener { parent, view, position, id ->
+            val selectedStudent = parent.getItemAtPosition(position) as Student
+            studentDAO.remove(selectedStudent)
+            Toast.makeText(
+                this,
+                String.format(
+                    resources.getString(R.string.removed_student_message),
+                    selectedStudent.name
+                ),
+                Toast.LENGTH_SHORT
+            ).show()
+            this.onResume()
+            false
+        }
+    }
+
+    private fun configureListItemClick() {
         studentListView?.setOnItemClickListener { parent, view, position, id ->
             val selectedStudent = parent.getItemAtPosition(position) as Student
             val intent = prepareIntentToForm()
             intent.putExtra(R.string.constant_student_extra.toString(), selectedStudent)
             startActivity(intent)
-        }
-
-        studentListView?.setOnItemLongClickListener { parent, view, position, id ->
-            val selectedStudent = parent.getItemAtPosition(position) as Student
-            studentDAO.remove(selectedStudent)
-            Toast.makeText(this, String.format(resources.getString(R.string.removed_student_message), selectedStudent.name),
-                    Toast.LENGTH_SHORT).show()
-
-            this.onResume()
-            true
         }
     }
 
