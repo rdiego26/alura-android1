@@ -41,23 +41,28 @@ class MainActivity : AppCompatActivity() {
         menuInfo: ContextMenu.ContextMenuInfo?
     ) {
         super.onCreateContextMenu(menu, v, menuInfo)
-        menu?.add(R.string.student_list_context_menu_remove)
+        menuInflater.inflate(R.menu.activity_main_menu, menu)
     }
 
     override fun onContextItemSelected(item: MenuItem): Boolean {
         val menuInfo = item.menuInfo as AdapterView.AdapterContextMenuInfo
         val selectedStudent = listAdapter?.getItem(menuInfo.position) as Student
-        studentDAO.remove(selectedStudent)
 
-        Toast.makeText(
-            this,
-            String.format(
-                resources.getString(R.string.removed_student_message),
-                selectedStudent.name
-            ),
-            Toast.LENGTH_SHORT
-        ).show()
-        this.onResume()
+        when (item.itemId) {
+            R.id.activity_main_context_menu_delete -> {
+                studentDAO.remove(selectedStudent)
+
+                Toast.makeText(
+                    this,
+                    String.format(
+                        resources.getString(R.string.removed_student_message),
+                        selectedStudent.name
+                    ),
+                    Toast.LENGTH_SHORT
+                ).show()
+                this.onResume()
+            }
+        }
 
         return super.onContextItemSelected(item)
     }
