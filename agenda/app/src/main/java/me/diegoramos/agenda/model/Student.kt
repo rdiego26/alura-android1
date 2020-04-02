@@ -8,6 +8,6 @@ class Student (val id: UUID = UUID.randomUUID(),
                val email: String,
                val phone: String) : Serializable {
     override fun toString(): String {
-        return name
+        return "$name - $phone"
     }
 }

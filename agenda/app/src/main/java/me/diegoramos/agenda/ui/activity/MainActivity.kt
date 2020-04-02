@@ -1,14 +1,10 @@
 package me.diegoramos.agenda.ui.activity
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.view.ContextMenu
-import android.view.MenuItem
-import android.view.View
-import android.widget.AdapterView
-import android.widget.ArrayAdapter
-import android.widget.ListView
-import android.widget.Toast
+import android.view.*
+import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import me.diegoramos.agenda.R
 import me.diegoramos.agenda.dao.StudentDAO
@@ -19,7 +15,7 @@ class MainActivity : AppCompatActivity() {
     private val studentDAO = StudentDAO
     private var studentListView: ListView? = null
     private var studentList = listOf<Student>()
-    private var listAdapter: ArrayAdapter<Student>? = null
+    private var listAdapter: MainActivity.ContactItemAdapter? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -95,11 +91,60 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun createAdapter(studentList: List<Student>) =
-        ArrayAdapter(this, android.R.layout.simple_list_item_1, studentList)
+        ContactItemAdapter(this, studentList)
+
 
     private fun cleanAndOrderData(list: List<Student>) =
         list.sortedBy { it.name }
 
     private fun prepareIntentToForm() =
         Intent(this, StudentFormActivity::class.java)
+
+    private class ContactItemAdapter(context: Context, list: List<Student>) : BaseAdapter() {
+        internal var sList = list
+        private val mInflator: LayoutInflater
+
+        init {
+            this.mInflator = LayoutInflater.from(context)
+        }
+
+        override fun getCount(): Int {
+            return sList.size
+        }
+
+        override fun getItem(position: Int): Any {
+            return sList[position]
+        }
+
+        override fun getItemId(position: Int): Long {
+            return position.toLong()
+        }
+
+        override fun getView(position: Int, convertView: View?, parent: ViewGroup): View? {
+            val view: View?
+            val vh: ListRowHolder
+            if (convertView == null) {
+                view = this.mInflator.inflate(R.layout.item_contact, parent, false)
+                vh = ListRowHolder(view)
+                view.tag = vh
+            } else {
+                view = convertView
+                vh = view.tag as ListRowHolder
+            }
+
+            vh.name.text = sList[position].name
+            vh.phone.text = sList[position].phone
+            return view
+        }
+    }
+
+    private class ListRowHolder(row: View?) {
+        public val name: TextView
+        public val phone: TextView
+
+        init {
+            this.name = row?.findViewById(R.id.item_contact_name) as TextView
+            this.phone = row?.findViewById(R.id.item_contact_phone) as TextView
+        }
+    }
 }
