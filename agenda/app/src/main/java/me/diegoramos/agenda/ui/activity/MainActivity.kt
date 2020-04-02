@@ -102,11 +102,7 @@ class MainActivity : AppCompatActivity() {
 
     private class ContactItemAdapter(context: Context, list: List<Student>) : BaseAdapter() {
         internal var sList = list
-        private val mInflator: LayoutInflater
-
-        init {
-            this.mInflator = LayoutInflater.from(context)
-        }
+        private val mInflator: LayoutInflater = LayoutInflater.from(context)
 
         override fun getCount(): Int {
             return sList.size
@@ -139,12 +135,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private class ListRowHolder(row: View?) {
-        public val name: TextView
-        public val phone: TextView
-
-        init {
-            this.name = row?.findViewById(R.id.item_contact_name) as TextView
-            this.phone = row?.findViewById(R.id.item_contact_phone) as TextView
-        }
+        val name: TextView = row?.findViewById(R.id.item_contact_name) as TextView
+        val phone: TextView = row?.findViewById(R.id.item_contact_phone) as TextView
     }
 }
