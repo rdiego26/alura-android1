@@ -1,5 +1,6 @@
 package me.diegoramos.agenda.ui.activity
 
+import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
@@ -15,7 +16,7 @@ class MainActivity : AppCompatActivity() {
     private val studentDAO = StudentDAO
     private var studentListView: ListView? = null
     private var studentList = listOf<Student>()
-    private var listAdapter: MainActivity.ContactItemAdapter? = null
+    private var listAdapter: ContactItemAdapter? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -46,21 +47,39 @@ class MainActivity : AppCompatActivity() {
 
         when (item.itemId) {
             R.id.activity_main_context_menu_delete -> {
-                studentDAO.remove(selectedStudent)
-
-                Toast.makeText(
-                    this,
-                    String.format(
-                        resources.getString(R.string.removed_student_message),
-                        selectedStudent.name
-                    ),
-                    Toast.LENGTH_SHORT
-                ).show()
+                dialogToRemove(selectedStudent)
                 this.onResume()
             }
         }
 
         return super.onContextItemSelected(item)
+    }
+
+    private fun dialogToRemove(student: Student) {
+        val message = String.format(resources.getString(R.string.remove_student_question),
+            student.name)
+        val btnConfirm = resources.getString(R.string.remove_student_confirmed)
+        val btnCancel = resources.getString(R.string.remove_student_cancel)
+
+        AlertDialog.Builder(this)
+            .setTitle(R.string.remove_student_title)
+            .setMessage(message)
+            .setPositiveButton(btnConfirm) { _, _ ->
+                studentDAO.remove(student)
+                Toast.makeText(this, String.format(
+                    resources.getString(R.string.removed_student_message),
+                    student.name),
+                    Toast.LENGTH_SHORT
+                ).show()
+                this.onResume()
+            }
+            .setNegativeButton(btnCancel) { _, _ ->
+                Toast.makeText(this, resources.getString(R.string.removed_student_canceled),
+                    Toast.LENGTH_SHORT
+                ).show()
+                this.onResume()
+            }
+            .show()
     }
 
     private fun initializeComponents() {
