@@ -23,6 +23,14 @@ class ContactItemAdapter(private val data: MutableList<Contact>,
         data.add(contact)
         notifyDataSetChanged()
     }
+
+    fun updateContact(contact: Contact) {
+        val newList = data.filter { it.id == contact.id }
+        data.clear()
+        data.addAll(newList)
+        data.add(contact)
+        notifyDataSetChanged()
+    }
 }
 
 class ContactViewHolder(inflater: LayoutInflater, parent: ViewGroup) :

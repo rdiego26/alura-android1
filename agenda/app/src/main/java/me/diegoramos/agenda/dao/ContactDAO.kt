@@ -5,7 +5,7 @@ import me.diegoramos.agenda.R
 import me.diegoramos.agenda.model.Contact
 import me.diegoramos.agenda.model.DuplicatedItemException
 
-object StudentDAO {
+object ContactDAO {
 
     var contacts: MutableList<Contact> = mutableListOf()
 
@@ -18,7 +18,9 @@ object StudentDAO {
 
     fun update(contact: Contact, context: Context) {
         validateAddOrUpdate(contact, context)
-        contacts.remove(contact)
+        val newList = contacts.filter { it.id == contact.id }
+        contacts.clear()
+        contacts.addAll(newList)
         contacts.add(contact)
     }
 

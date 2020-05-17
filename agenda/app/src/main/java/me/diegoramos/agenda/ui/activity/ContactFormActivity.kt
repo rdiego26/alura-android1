@@ -8,7 +8,7 @@ import androidx.appcompat.app.AppCompatActivity
 import kotlinx.android.synthetic.main.activity_student_form.*
 import me.diegoramos.agenda.Constants
 import me.diegoramos.agenda.R
-import me.diegoramos.agenda.dao.StudentDAO
+import me.diegoramos.agenda.dao.ContactDAO
 import me.diegoramos.agenda.model.Contact
 import me.diegoramos.agenda.model.DuplicatedItemException
 
@@ -21,7 +21,6 @@ class ContactFormActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_student_form)
         setTitle(R.string.student_form_activity_title)
-//        initializeComponents()
         handleEdit()
     }
 
@@ -35,7 +34,7 @@ class ContactFormActivity : AppCompatActivity() {
     private fun haveStudentExtra(): Boolean {
         val data: Intent = intent
         val student =
-            data.getSerializableExtra(R.string.constant_student_extra.toString()) as Contact?
+            data.getSerializableExtra(Constants.contactExtraName) as Contact?
 
         return student != null
     }
@@ -43,7 +42,7 @@ class ContactFormActivity : AppCompatActivity() {
     private fun handleEdit() {
         val data: Intent = intent
         val student =
-            data.getSerializableExtra(R.string.constant_student_extra.toString()) as Contact?
+            data.getSerializableExtra(Constants.contactExtraName) as Contact?
 
         if(student != null) {
             setTitle(R.string.student_form_activity_edit_title)
@@ -62,24 +61,22 @@ class ContactFormActivity : AppCompatActivity() {
     }
 
     fun handleSave(view: View) {
-        val studentName = activity_student_form_name?.text.toString()
         val contact: Contact?
 
         try {
             if (mode == FormMode.REGISTER) {
-                contact = Contact(name = studentName, email = activity_student_form_email?.text.toString(),
+                contact = Contact(name = activity_student_form_name?.text.toString(),
+                    email = activity_student_form_email?.text.toString(),
                     phone = activity_student_form_phone?.text.toString())
-                StudentDAO.add(contact, this)
-                setResult(Constants.createdContactResultCode, prepareResultForRegister(contact))
+                handleRegister(contact)
             } else {
-                contact = Contact(id = currentContact!!.id, name = studentName, email = activity_student_form_email?.text.toString(),
+                contact = Contact(id = currentContact!!.id, name = activity_student_form_name?.text.toString(),
+                    email = activity_student_form_email?.text.toString(),
                     phone = activity_student_form_phone?.text.toString())
-                StudentDAO.update(contact, this)
-                setResult(Constants.updatedContactResultCode, prepareResultForUpdate(contact))
+                handleUpdate(contact)
             }
 
-            Toast.makeText(this, "Student $studentName saved!", Toast.LENGTH_LONG).show()
-
+            Toast.makeText(this, "Contact ${activity_student_form_name?.text.toString()} saved!", Toast.LENGTH_LONG).show()
 
             finish()
         } catch (ex: DuplicatedItemException) {
@@ -88,19 +85,23 @@ class ContactFormActivity : AppCompatActivity() {
 
     }
 
-    private fun prepareResultForRegister(contact: Contact): Intent {
+    private fun handleUpdate(contact: Contact?) {
+        ContactDAO.update(contact!!, this)
+        setResult(Constants.updatedContactResultCode, prepareResult(contact))
+    }
+
+    private fun handleRegister(contact: Contact?) {
+        ContactDAO.add(contact!!, this)
+        setResult(Constants.createdContactResultCode, prepareResult(contact))
+    }
+
+    private fun prepareResult(contact: Contact): Intent {
         val intent = Intent()
-        intent.putExtra(Constants.createdContactExtraName, contact)
+        intent.putExtra(Constants.contactExtraName, contact)
 
         return intent
     }
 
-    private fun prepareResultForUpdate(contact: Contact): Intent {
-        val intent = Intent()
-        intent.putExtra(Constants.updatedContactExtraName, contact)
-
-        return intent
-    }
 }
 
 enum class FormMode {

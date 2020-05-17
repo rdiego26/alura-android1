@@ -6,8 +6,4 @@ import java.util.*
 class Contact (val id: UUID = UUID.randomUUID(),
                val name: String,
                val email: String,
-               val phone: String) : Serializable {
-    override fun toString(): String {
-        return "$name - $phone"
-    }
-}
+               val phone: String) : Serializable

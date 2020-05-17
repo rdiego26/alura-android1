@@ -6,7 +6,7 @@ import androidx.appcompat.app.AppCompatActivity
 import kotlinx.android.synthetic.main.activity_main.*
 import me.diegoramos.agenda.Constants
 import me.diegoramos.agenda.R
-import me.diegoramos.agenda.dao.StudentDAO
+import me.diegoramos.agenda.dao.ContactDAO
 import me.diegoramos.agenda.model.Contact
 import me.diegoramos.agenda.ui.adapter.ContactItemAdapter
 
@@ -17,7 +17,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         setTitle(R.string.main_activity_title)
 
-        StudentDAO.add(Contact(name = "aaa", email = "aaaaa", phone = "0000000"), this)
+        ContactDAO.add(Contact(name = "Nome", email = "email@email.com", phone = "9999999"), this)
 
         configureRecyclerView()
         configureFABToForm()
@@ -75,20 +75,19 @@ class MainActivity : AppCompatActivity() {
 //    }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        if (isCreateContactRequest(requestCode)
-            && isCreateContactResult(resultCode)
-            && hasContact(data)
-        ) {
-            addItemOnAdapter(data!!)
+        if (isCreateContactRequest(requestCode) && isCreateContactResult(resultCode) && hasContact(data)) {
+            handleAddedItemOnAdapter(data!!)
+        } else if(isUpdateContactRequest(requestCode) && isUpdateContactResult(resultCode) && hasContact(data)) {
+            handleUpdatedItemOnAdapter(data!!)
         }
 
         super.onActivityResult(requestCode, resultCode, data)
     }
 
     private fun configureRecyclerView() {
-        this.activity_main_contact_list.adapter = ContactItemAdapter(StudentDAO.getAll()){
+        this.activity_main_contact_list.adapter = ContactItemAdapter(ContactDAO.getAll()){
             val intent = Intent(applicationContext, ContactFormActivity::class.java)
-            intent.putExtra(R.string.constant_student_extra.toString(), it)
+            intent.putExtra(Constants.contactExtraName, it)
             startActivityForResult(intent, Constants.updatedContactRequestCode)
         }
     }
@@ -119,7 +118,13 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun hasContact(data: Intent?) =
-        data?.hasExtra(Constants.createdContactExtraName)!!
+        data?.hasExtra(Constants.contactExtraName)!!
+
+    private fun isUpdateContactResult(resultCode: Int) =
+        resultCode == Constants.updatedContactResultCode
+
+    private fun isUpdateContactRequest(requestCode: Int) =
+        requestCode == Constants.updatedContactRequestCode
 
     private fun isCreateContactResult(resultCode: Int) =
         resultCode == Constants.createdContactResultCode
@@ -127,9 +132,15 @@ class MainActivity : AppCompatActivity() {
     private fun isCreateContactRequest(requestCode: Int) =
         requestCode == Constants.createdContactRequestCode
 
-    private fun addItemOnAdapter(data: Intent) {
-        val receivedContact: Contact = data.getSerializableExtra(Constants.createdContactExtraName) as Contact
+    private fun handleAddedItemOnAdapter(data: Intent) {
+        val receivedContact: Contact = data.getSerializableExtra(Constants.contactExtraName) as Contact
         ((this.activity_main_contact_list.adapter) as ContactItemAdapter).addContact(receivedContact)
+        this.activity_main_contact_list.adapter?.notifyDataSetChanged()
+    }
+
+    private fun handleUpdatedItemOnAdapter(data: Intent) {
+        val receivedContact: Contact = data.getSerializableExtra(Constants.contactExtraName) as Contact
+        ((this.activity_main_contact_list.adapter) as ContactItemAdapter).updateContact(receivedContact)
         this.activity_main_contact_list.adapter?.notifyDataSetChanged()
     }
 
