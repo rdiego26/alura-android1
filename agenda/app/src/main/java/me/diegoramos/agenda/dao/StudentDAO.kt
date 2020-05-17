@@ -2,44 +2,45 @@ package me.diegoramos.agenda.dao
 
 import android.content.Context
 import me.diegoramos.agenda.R
+import me.diegoramos.agenda.model.Contact
 import me.diegoramos.agenda.model.DuplicatedItemException
-import me.diegoramos.agenda.model.Student
 
 object StudentDAO {
 
-    var students: List<Student> = listOf()
+    var contacts: MutableList<Contact> = mutableListOf()
 
-    fun add(student: Student, context: Context) {
-        validateAddOrUpdate(student, context)
-        students = students + student
+    fun add(contact: Contact, context: Context) {
+        validateAddOrUpdate(contact, context)
+        contacts.add(contact)
     }
 
-    fun remove(student: Student) = run { students = students.filterNot { it.id == student.id } }
+    fun remove(contact: Contact) = contacts.remove(contact)
 
-    fun update(student: Student, context: Context) {
-        validateAddOrUpdate(student, context)
-        students = students.filterNot { it.id == student.id } + student
+    fun update(contact: Contact, context: Context) {
+        validateAddOrUpdate(contact, context)
+        contacts.remove(contact)
+        contacts.add(contact)
     }
 
-    fun getAll(): List<Student> {
-        return students
+    fun getAll(): MutableList<Contact> {
+        return contacts
     }
 
-    private fun validateAddOrUpdate(student: Student, context: Context) {
+    private fun validateAddOrUpdate(contact: Contact, context: Context) {
         val resources = context.resources
-        val alreadyWithSameName = students.any { it.name == student.name && it.id != student.id }
+        val alreadyWithSameName = contacts.any { it.name == contact.name && it.id != contact.id }
         if(alreadyWithSameName) {
-            throw DuplicatedItemException(String.format( resources.getString(R.string.duplicated_item_by_name_message), student.name))
+            throw DuplicatedItemException(String.format( resources.getString(R.string.duplicated_item_by_name_message), contact.name))
         }
 
-        val alreadyWithSameEmail = students.any { it.email == student.email && it.id != student.id }
+        val alreadyWithSameEmail = contacts.any { it.email == contact.email && it.id != contact.id }
         if(alreadyWithSameEmail) {
-            throw DuplicatedItemException(String.format( resources.getString(R.string.duplicated_item_by_email_message), student.email))
+            throw DuplicatedItemException(String.format( resources.getString(R.string.duplicated_item_by_email_message), contact.email))
         }
 
-        val alreadyWithSamePhone = students.any { it.phone == student.phone && it.id != student.id }
+        val alreadyWithSamePhone = contacts.any { it.phone == contact.phone && it.id != contact.id }
         if(alreadyWithSamePhone) {
-            throw DuplicatedItemException(String.format( resources.getString(R.string.duplicated_item_by_phone_message), student.phone))
+            throw DuplicatedItemException(String.format( resources.getString(R.string.duplicated_item_by_phone_message), contact.phone))
         }
     }
 }

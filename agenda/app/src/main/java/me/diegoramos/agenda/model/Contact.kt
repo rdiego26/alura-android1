@@ -3,7 +3,7 @@ package me.diegoramos.agenda.model
 import java.io.Serializable
 import java.util.*
 
-class Student (val id: UUID = UUID.randomUUID(),
+class Contact (val id: UUID = UUID.randomUUID(),
                val name: String,
                val email: String,
                val phone: String) : Serializable {
