@@ -2,6 +2,8 @@ package me.diegoramos.agenda.ui.activity
 
 import android.content.Intent
 import android.os.Bundle
+import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import kotlinx.android.synthetic.main.activity_main.*
 import me.diegoramos.agenda.Constants
@@ -47,32 +49,32 @@ class MainActivity : AppCompatActivity() {
 //        return super.onContextItemSelected(item)
 //    }
 
-//    private fun dialogToRemove(contact: Contact) {
-//        val message = String.format(resources.getString(R.string.remove_student_question),
-//            contact.name)
-//        val btnConfirm = resources.getString(R.string.remove_student_confirmed)
-//        val btnCancel = resources.getString(R.string.remove_student_cancel)
-//
-//        AlertDialog.Builder(this)
-//            .setTitle(R.string.remove_student_title)
-//            .setMessage(message)
-//            .setPositiveButton(btnConfirm) { _, _ ->
-//                studentDAO.remove(contact)
-//                Toast.makeText(this, String.format(
-//                    resources.getString(R.string.removed_student_message),
-//                    contact.name),
-//                    Toast.LENGTH_SHORT
-//                ).show()
-//                this.onResume()
-//            }
-//            .setNegativeButton(btnCancel) { _, _ ->
-//                Toast.makeText(this, resources.getString(R.string.removed_student_canceled),
-//                    Toast.LENGTH_SHORT
-//                ).show()
-//                this.onResume()
-//            }
-//            .show()
-//    }
+    private fun dialogToRemove(contact: Contact) {
+        val message = String.format(resources.getString(R.string.remove_student_question),
+            contact.name)
+        val btnConfirm = resources.getString(R.string.remove_student_confirmed)
+        val btnCancel = resources.getString(R.string.remove_student_cancel)
+
+        AlertDialog.Builder(this)
+            .setTitle(R.string.remove_student_title)
+            .setMessage(message)
+            .setPositiveButton(btnConfirm) { _, _ ->
+                ContactDAO.remove(contact)
+                Toast.makeText(this, String.format(
+                    resources.getString(R.string.removed_student_message),
+                    contact.name),
+                    Toast.LENGTH_SHORT
+                ).show()
+                this.onResume()
+            }
+            .setNegativeButton(btnCancel) { _, _ ->
+                Toast.makeText(this, resources.getString(R.string.removed_student_canceled),
+                    Toast.LENGTH_SHORT
+                ).show()
+                this.onResume()
+            }
+            .show()
+    }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (isCreateContactRequest(requestCode) && isCreateContactResult(resultCode) && hasContact(data)) {
@@ -87,7 +89,7 @@ class MainActivity : AppCompatActivity() {
     private fun configureRecyclerView() {
         this.activity_main_contact_list.adapter = ContactItemAdapter(ContactDAO.getAll()){
             val intent = Intent(applicationContext, ContactFormActivity::class.java)
-            intent.putExtra(Constants.contactExtraName, it)
+            intent.putExtra(Constants.CONTACT_EXTRA_NAME, it)
             startActivityForResult(intent, Constants.updatedContactRequestCode)
         }
     }
@@ -118,7 +120,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun hasContact(data: Intent?) =
-        data?.hasExtra(Constants.contactExtraName)!!
+        data?.hasExtra(Constants.CONTACT_EXTRA_NAME)!!
 
     private fun isUpdateContactResult(resultCode: Int) =
         resultCode == Constants.updatedContactResultCode
@@ -133,13 +135,13 @@ class MainActivity : AppCompatActivity() {
         requestCode == Constants.createdContactRequestCode
 
     private fun handleAddedItemOnAdapter(data: Intent) {
-        val receivedContact: Contact = data.getSerializableExtra(Constants.contactExtraName) as Contact
+        val receivedContact: Contact = data.getSerializableExtra(Constants.CONTACT_EXTRA_NAME) as Contact
         ((this.activity_main_contact_list.adapter) as ContactItemAdapter).addContact(receivedContact)
         this.activity_main_contact_list.adapter?.notifyDataSetChanged()
     }
 
     private fun handleUpdatedItemOnAdapter(data: Intent) {
-        val receivedContact: Contact = data.getSerializableExtra(Constants.contactExtraName) as Contact
+        val receivedContact: Contact = data.getSerializableExtra(Constants.CONTACT_EXTRA_NAME) as Contact
         ((this.activity_main_contact_list.adapter) as ContactItemAdapter).updateContact(receivedContact)
         this.activity_main_contact_list.adapter?.notifyDataSetChanged()
     }

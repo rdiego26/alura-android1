@@ -8,7 +8,7 @@
     tools:context=".ui.activity.ContactFormActivity">
 
     <EditText
-        android:id="@+id/activity_student_form_name"
+        android:id="@+id/activity_contact_form_name"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
@@ -23,7 +23,7 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <EditText
-        android:id="@+id/activity_student_form_email"
+        android:id="@+id/activity_contact_form_email"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
@@ -39,7 +39,7 @@
         app:layout_constraintVertical_bias="0.128" />
 
     <EditText
-        android:id="@+id/activity_student_form_phone"
+        android:id="@+id/activity_contact_form_phone"
         android:layout_width="395dp"
         android:layout_height="43dp"
         android:layout_margin="8dp"
@@ -49,7 +49,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/activity_student_form_email"
+        app:layout_constraintTop_toBottomOf="@+id/activity_contact_form_email"
         app:layout_constraintVertical_bias="0.041" />
 
     <Button
@@ -61,6 +61,6 @@
         android:onClick="handleSave"
         android:text="@string/student_form_save_button"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/activity_student_form_phone" />
+        app:layout_constraintTop_toBottomOf="@+id/activity_contact_form_phone" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
