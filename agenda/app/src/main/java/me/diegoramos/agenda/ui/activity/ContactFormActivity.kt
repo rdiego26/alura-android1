@@ -1,14 +1,15 @@
 package me.diegoramos.agenda.ui.activity
 
+import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
-import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import kotlinx.android.synthetic.main.activity_contact_form.*
 import me.diegoramos.agenda.Constants
 import me.diegoramos.agenda.R
 import me.diegoramos.agenda.dao.ContactDAO
+import me.diegoramos.agenda.model.BlankRequiredFieldException
 import me.diegoramos.agenda.model.Contact
 import me.diegoramos.agenda.model.DuplicatedItemException
 
@@ -28,6 +29,7 @@ class ContactFormActivity : AppCompatActivity() {
         setContentView(R.layout.activity_contact_form)
         setTitle(R.string.student_form_activity_title)
 
+        bindSaveButton()
         handleFormMode()
         handleReceivedData()
     }
@@ -63,50 +65,46 @@ class ContactFormActivity : AppCompatActivity() {
         mode = FormMode.UPDATE
     }
 
-    private fun resetFields() {
-        activity_contact_form_name?.text = null
-        activity_contact_form_email?.text = null
-        activity_contact_form_phone?.text = null
-    }
+    fun bindSaveButton() {
+        activity_contact_form_button.setOnClickListener {
+            val contact: Contact?
 
-    fun handleSave(view: View) {
-        val contact: Contact?
+            try {
+                if (mode == FormMode.REGISTER) {
+                    contact = Contact(name = activity_contact_form_name?.text.toString(),
+                        email = activity_contact_form_email?.text.toString(),
+                        phone = activity_contact_form_phone?.text.toString())
+                    handleRegister(contact)
+                } else {
+                    contact = Contact(id = receivedContact!!.id, name = activity_contact_form_name?.text.toString(),
+                        email = activity_contact_form_email?.text.toString(),
+                        phone = activity_contact_form_phone?.text.toString())
+                    handleUpdate(contact)
+                }
 
-        try {
-            if (mode == FormMode.REGISTER) {
-                contact = Contact(name = activity_contact_form_name?.text.toString(),
-                    email = activity_contact_form_email?.text.toString(),
-                    phone = activity_contact_form_phone?.text.toString())
-                handleRegister(contact)
-            } else {
-                contact = Contact(id = receivedContact!!.id, name = activity_contact_form_name?.text.toString(),
-                    email = activity_contact_form_email?.text.toString(),
-                    phone = activity_contact_form_phone?.text.toString())
-                handleUpdate(contact)
+                finish()
+            } catch (ex: DuplicatedItemException) {
+                Toast.makeText(this, ex.message, Toast.LENGTH_LONG).show()
+            } catch (ex: BlankRequiredFieldException) {
+                Toast.makeText(this, ex.message, Toast.LENGTH_LONG).show()
             }
-
-            Toast.makeText(this, "Contact ${activity_contact_form_name?.text.toString()} saved!", Toast.LENGTH_LONG).show()
-
-            finish()
-        } catch (ex: DuplicatedItemException) {
-            Toast.makeText(this, ex.message, Toast.LENGTH_LONG).show()
         }
-
     }
 
     private fun handleUpdate(contact: Contact?) {
-        ContactDAO.update(contact!!, this)
-        setResult(Constants.updatedContactResultCode, prepareResult(contact))
+        ContactDAO.update(contact!!, receivedContactPosition, this)
+        setResult(Activity.RESULT_OK, prepareResult(contact))
     }
 
     private fun handleRegister(contact: Contact?) {
         ContactDAO.add(contact!!, this)
-        setResult(Constants.createdContactResultCode, prepareResult(contact))
+        setResult(Activity.RESULT_OK, prepareResult(contact))
     }
 
     private fun prepareResult(contact: Contact): Intent {
         val intent = Intent()
         intent.putExtra(Constants.CONTACT_EXTRA_NAME, contact)
+        intent.putExtra(Constants.CONTACT_POSITION_EXTRA_NAME, receivedContactPosition)
 
         return intent
     }

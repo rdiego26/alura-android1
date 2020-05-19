@@ -18,6 +18,11 @@
     <string name="duplicated_item_by_name_message">Já existe outro contato com o nome %1$s</string>
     <string name="duplicated_item_by_email_message">Já existe outro contato com o email %1$s</string>
     <string name="duplicated_item_by_phone_message">Já existe outro contato com o telefone %1$s</string>
+    <string name="operation_canceled">Operação cancelada pelo usuário</string>
+
+    <string name="contact_without_name_message">Campo nome é obrigatório</string>
+    <string name="contact_without_email_message">Campo email é obrigatório</string>
+    <string name="contact_without_phone_message">Campo telefone é obrigatório</string>
 
     <string name="constant_student_extra">STUDENT_EXTRA</string>
 </resources>

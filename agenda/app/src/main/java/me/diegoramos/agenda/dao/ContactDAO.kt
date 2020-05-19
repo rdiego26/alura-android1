@@ -2,6 +2,7 @@ package me.diegoramos.agenda.dao
 
 import android.content.Context
 import me.diegoramos.agenda.R
+import me.diegoramos.agenda.model.BlankRequiredFieldException
 import me.diegoramos.agenda.model.Contact
 import me.diegoramos.agenda.model.DuplicatedItemException
 
@@ -16,16 +17,13 @@ object ContactDAO {
 
     fun remove(contact: Contact) = contacts.remove(contact)
 
-    fun update(contact: Contact, context: Context) {
+    fun update(contact: Contact, position: Int, context: Context) {
         validateAddOrUpdate(contact, context)
-        val newList = contacts.filter { it.id == contact.id }
-        contacts.clear()
-        contacts.addAll(newList)
-        contacts.add(contact)
+        contacts[position] = contact
     }
 
     fun getAll(): MutableList<Contact> {
-        return contacts
+        return contacts.toMutableList()
     }
 
     private fun validateAddOrUpdate(contact: Contact, context: Context) {
@@ -43,6 +41,18 @@ object ContactDAO {
         val alreadyWithSamePhone = contacts.any { it.phone == contact.phone && it.id != contact.id }
         if(alreadyWithSamePhone) {
             throw DuplicatedItemException(String.format( resources.getString(R.string.duplicated_item_by_phone_message), contact.phone))
+        }
+
+        when {
+            contact.name.isBlank() -> {
+                throw BlankRequiredFieldException(resources.getString(R.string.contact_without_name_message))
+            }
+            contact.email.isBlank() -> {
+                throw BlankRequiredFieldException(resources.getString(R.string.contact_without_email_message))
+            }
+            contact.phone.isBlank() -> {
+                throw BlankRequiredFieldException(resources.getString(R.string.contact_without_phone_message))
+            }
         }
     }
 }

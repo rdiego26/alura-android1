@@ -1,5 +1,6 @@
 package me.diegoramos.agenda.ui.activity
 
+import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
@@ -11,8 +12,9 @@ import me.diegoramos.agenda.R
 import me.diegoramos.agenda.dao.ContactDAO
 import me.diegoramos.agenda.model.Contact
 import me.diegoramos.agenda.ui.adapter.ContactItemAdapter
+import me.diegoramos.agenda.ui.adapter.listener.OnItemClickListener
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), OnItemClickListener {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -77,21 +79,41 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        if (isCreateContactRequest(requestCode) && isCreateContactResult(resultCode) && hasContact(data)) {
-            handleAddedItemOnAdapter(data!!)
-        } else if(isUpdateContactRequest(requestCode) && isUpdateContactResult(resultCode) && hasContact(data)) {
-            handleUpdatedItemOnAdapter(data!!)
+        if (isCreateContactRequest(requestCode)) {
+            if(isCanceledResult(resultCode)) {
+                handleCanceledFeedback()
+            } else if(isOkResult(resultCode) && hasContact(data)){
+                handleAddedItemOnAdapter(data!!)
+            }
+
+        } else if(isUpdateContactRequest(requestCode)) {
+            if(isCanceledResult(resultCode)) {
+                handleCanceledFeedback()
+            } else if(isOkResult(resultCode) && hasContact(data) && hasValidContactPosition(data)) {
+                handleUpdatedItemOnAdapter(data!!)
+            }
+
         }
 
         super.onActivityResult(requestCode, resultCode, data)
     }
 
+    private fun handleCanceledFeedback() =
+        Toast.makeText(applicationContext, R.string.operation_canceled, Toast.LENGTH_SHORT)
+            .show()
+
+    private fun isCanceledResult(
+        resultCode: Int
+    ) = resultCode == Activity.RESULT_CANCELED
+
+    private fun isOkResult(resultCode: Int) =
+        resultCode == Activity.RESULT_OK
+
+    private fun isCreateContactRequest(requestCode: Int) =
+        requestCode == Constants.CREATE_CONTACT_REQUEST_CODE
+
     private fun configureRecyclerView() {
-        this.activity_main_contact_list.adapter = ContactItemAdapter(ContactDAO.getAll()){
-            val intent = Intent(applicationContext, ContactFormActivity::class.java)
-            intent.putExtra(Constants.CONTACT_EXTRA_NAME, it)
-            startActivityForResult(intent, Constants.updatedContactRequestCode)
-        }
+        this.activity_main_contact_list.adapter = ContactItemAdapter(ContactDAO.getAll(), this)
     }
 
 //    private fun setupList() {
@@ -115,35 +137,47 @@ class MainActivity : AppCompatActivity() {
     private fun configureFABToForm() {
         activity_main_fab.setOnClickListener {
             val intent = Intent(applicationContext, ContactFormActivity::class.java)
-            startActivityForResult(intent, Constants.createdContactRequestCode)
+            startActivityForResult(intent, Constants.CREATE_CONTACT_REQUEST_CODE)
         }
     }
 
     private fun hasContact(data: Intent?) =
         data?.hasExtra(Constants.CONTACT_EXTRA_NAME)!!
 
-    private fun isUpdateContactResult(resultCode: Int) =
-        resultCode == Constants.updatedContactResultCode
+    private fun hasValidContactPosition(data: Intent?) =
+        data?.hasExtra(Constants.CONTACT_POSITION_EXTRA_NAME)!! &&
+        data.getIntExtra(Constants.CONTACT_POSITION_EXTRA_NAME,
+            ContactFormActivity.INVALID_POSITION) != ContactFormActivity.INVALID_POSITION
 
     private fun isUpdateContactRequest(requestCode: Int) =
-        requestCode == Constants.updatedContactRequestCode
+        requestCode == Constants.UPDATE_CONTACT_REQUEST_CODE
 
-    private fun isCreateContactResult(resultCode: Int) =
-        resultCode == Constants.createdContactResultCode
-
-    private fun isCreateContactRequest(requestCode: Int) =
-        requestCode == Constants.createdContactRequestCode
 
     private fun handleAddedItemOnAdapter(data: Intent) {
         val receivedContact: Contact = data.getSerializableExtra(Constants.CONTACT_EXTRA_NAME) as Contact
         ((this.activity_main_contact_list.adapter) as ContactItemAdapter).addContact(receivedContact)
         this.activity_main_contact_list.adapter?.notifyDataSetChanged()
+
+        handleSavedContactFeedback(receivedContact)
     }
 
     private fun handleUpdatedItemOnAdapter(data: Intent) {
         val receivedContact: Contact = data.getSerializableExtra(Constants.CONTACT_EXTRA_NAME) as Contact
-        ((this.activity_main_contact_list.adapter) as ContactItemAdapter).updateContact(receivedContact)
+        val receivedPosition: Int = data.getIntExtra(Constants.CONTACT_POSITION_EXTRA_NAME, -1)
+        ((this.activity_main_contact_list.adapter) as ContactItemAdapter).updateContact(receivedContact, receivedPosition)
         this.activity_main_contact_list.adapter?.notifyDataSetChanged()
+
+        handleSavedContactFeedback(receivedContact)
+    }
+
+    private fun handleSavedContactFeedback(contact: Contact) =
+        Toast.makeText(this, "Contact ${contact.name} saved!", Toast.LENGTH_LONG).show()
+
+    override fun onItemClick(contact: Contact, position: Int) {
+        val intent = Intent(applicationContext, ContactFormActivity::class.java)
+        intent.putExtra(Constants.CONTACT_EXTRA_NAME, contact)
+        intent.putExtra(Constants.CONTACT_POSITION_EXTRA_NAME, position)
+        startActivityForResult(intent, Constants.UPDATE_CONTACT_REQUEST_CODE)
     }
 
 }

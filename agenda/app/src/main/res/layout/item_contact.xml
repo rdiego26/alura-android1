@@ -27,11 +27,18 @@
             android:layout_height="wrap_content"
             android:textSize="24sp"
             tools:text="Phone"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="@+id/item_contact_name"
             app:layout_constraintTop_toBottomOf="@id/item_contact_name" />
+
+        <TextView
+            android:id="@+id/item_contact_email"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="24sp"
+            tools:text="Email"
+            app:layout_constraintStart_toStartOf="@+id/item_contact_phone"
+            app:layout_constraintTop_toBottomOf="@id/item_contact_phone" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
