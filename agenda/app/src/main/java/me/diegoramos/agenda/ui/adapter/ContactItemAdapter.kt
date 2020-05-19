@@ -7,10 +7,12 @@ import kotlinx.android.synthetic.main.item_contact.view.*
 import me.diegoramos.agenda.R
 import me.diegoramos.agenda.model.Contact
 import me.diegoramos.agenda.ui.adapter.listener.OnItemClickListener
+import me.diegoramos.agenda.ui.adapter.listener.OnItemLongClickListener
 import java.util.*
 
 class ContactItemAdapter(private val data: MutableList<Contact>,
-                         private val itemClickListener: OnItemClickListener
+                         private val itemClickListener: OnItemClickListener,
+                         private val itemLongClickListener: OnItemLongClickListener
 ): RecyclerView.Adapter<ContactViewHolder>() {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ContactViewHolder {
         val inflater = LayoutInflater.from(parent.context)
@@ -20,7 +22,7 @@ class ContactItemAdapter(private val data: MutableList<Contact>,
     override fun getItemCount(): Int = data.size
 
     override fun onBindViewHolder(holder: ContactViewHolder, position: Int) =
-        holder.bind(data[position], itemClickListener)
+        holder.bind(data[position], itemClickListener, itemLongClickListener)
 
     fun addContact(contact: Contact) {
         data.add(contact)
@@ -47,11 +49,17 @@ class ContactItemAdapter(private val data: MutableList<Contact>,
 class ContactViewHolder(inflater: LayoutInflater, parent: ViewGroup) :
     RecyclerView.ViewHolder(inflater.inflate(R.layout.item_contact, parent, false)) {
 
-    fun bind(contact: Contact, itemClickListener: OnItemClickListener) {
+    fun bind(contact: Contact,
+             itemClickListener: OnItemClickListener,
+             itemLongClickListener: OnItemLongClickListener) {
         itemView.item_contact_name.text = contact.name
         itemView.item_contact_phone.text = contact.phone
         itemView.item_contact_email.text = contact.email
 
         itemView.setOnClickListener { itemClickListener.onItemClick (contact, adapterPosition) }
+        itemView.setOnLongClickListener {
+            itemLongClickListener.onItemLongClick(contact, adapterPosition)
+            true
+        }
     }
 }
