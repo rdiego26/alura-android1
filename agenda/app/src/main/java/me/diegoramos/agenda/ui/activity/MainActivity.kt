@@ -3,10 +3,6 @@ package me.diegoramos.agenda.ui.activity
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
-import android.view.ContextMenu
-import android.view.MenuItem
-import android.view.View
-import android.widget.AdapterView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -60,30 +56,6 @@ class MainActivity : AppCompatActivity(), OnItemClickListener, OnItemLongClickLi
     override fun onItemLongClick(contact: Contact, position: Int) {
         dialogToRemove(contact, position)
     }
-
-    override fun onCreateContextMenu(
-        menu: ContextMenu?,
-        v: View?,
-        menuInfo: ContextMenu.ContextMenuInfo?
-    ) {
-        super.onCreateContextMenu(menu, v, menuInfo)
-        menuInflater.inflate(R.menu.activity_main_menu, menu)
-    }
-
-    override fun onContextItemSelected(item: MenuItem): Boolean {
-        val menuInfo = item.menuInfo as AdapterView.AdapterContextMenuInfo
-//        val selectedContact = this.activity_main_contact_list.adapter?. getItem(menuInfo.position) as Contact
-
-//        when (item.itemId) {
-//            R.id.activity_main_context_menu_delete -> {
-//                dialogToRemove(selectedContact)
-//                this.onResume()
-//            }
-//        }
-
-        return super.onContextItemSelected(item)
-    }
-
 
     private fun dialogToRemove(contact: Contact, position: Int) {
         val message = String.format(resources.getString(R.string.remove_student_question),
