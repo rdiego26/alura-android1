@@ -7,8 +7,9 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import kotlinx.android.synthetic.main.activity_contact_form.*
 import me.diegoramos.agenda.Constants
+import me.diegoramos.agenda.ContactsApplication
 import me.diegoramos.agenda.R
-import me.diegoramos.agenda.dao.ContactDAO
+import me.diegoramos.agenda.database.dao.ContactDAO
 import me.diegoramos.agenda.model.BlankRequiredFieldException
 import me.diegoramos.agenda.model.Contact
 import me.diegoramos.agenda.model.DuplicatedItemException
@@ -23,15 +24,21 @@ class ContactFormActivity : AppCompatActivity() {
     private var receivedContact: Contact? = null
     private var receivedContactPosition: Int = INVALID_POSITION
     private var isEditMode: Boolean = false
+    private var dao: ContactDAO? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_contact_form)
         setTitle(R.string.student_form_activity_title)
 
+        fetchDAO()
         bindSaveButton()
         handleFormMode()
         handleReceivedData()
+    }
+
+    private fun fetchDAO() {
+        dao = ContactsApplication.db.getContactDAO()
     }
 
     private fun handleFormMode() {
@@ -65,7 +72,7 @@ class ContactFormActivity : AppCompatActivity() {
         mode = FormMode.UPDATE
     }
 
-    fun bindSaveButton() {
+    private fun bindSaveButton() {
         activity_contact_form_button.setOnClickListener {
             val contact: Contact?
 
@@ -92,12 +99,14 @@ class ContactFormActivity : AppCompatActivity() {
     }
 
     private fun handleUpdate(contact: Contact?) {
-        ContactDAO.update(contact!!, receivedContactPosition, this)
+        validateAddOrUpdate(contact!!)
+        dao?.update(contact)
         setResult(Activity.RESULT_OK, prepareResult(contact))
     }
 
     private fun handleRegister(contact: Contact?) {
-        ContactDAO.add(contact!!, this)
+        validateAddOrUpdate(contact!!)
+        dao?.save(contact)
         setResult(Activity.RESULT_OK, prepareResult(contact))
     }
 
@@ -107,6 +116,36 @@ class ContactFormActivity : AppCompatActivity() {
         intent.putExtra(Constants.CONTACT_POSITION_EXTRA_NAME, receivedContactPosition)
 
         return intent
+    }
+
+    private fun validateAddOrUpdate(contact: Contact) {
+        val resources = applicationContext.resources
+        val alreadyWithSameName = me.diegoramos.agenda.dao.ContactDAO.getAll().any { it.name == contact.name && it.id != contact.id }
+        if(alreadyWithSameName) {
+            throw DuplicatedItemException(String.format( resources.getString(R.string.duplicated_item_by_name_message), contact.name))
+        }
+
+        val alreadyWithSameEmail = me.diegoramos.agenda.dao.ContactDAO.getAll().any { it.email == contact.email && it.id != contact.id }
+        if(alreadyWithSameEmail) {
+            throw DuplicatedItemException(String.format( resources.getString(R.string.duplicated_item_by_email_message), contact.email))
+        }
+
+        val alreadyWithSamePhone = me.diegoramos.agenda.dao.ContactDAO.getAll().any { it.phone == contact.phone && it.id != contact.id }
+        if(alreadyWithSamePhone) {
+            throw DuplicatedItemException(String.format( resources.getString(R.string.duplicated_item_by_phone_message), contact.phone))
+        }
+
+        when {
+            contact.name.isBlank() -> {
+                throw BlankRequiredFieldException(resources.getString(R.string.contact_without_name_message))
+            }
+            contact.email.isBlank() -> {
+                throw BlankRequiredFieldException(resources.getString(R.string.contact_without_email_message))
+            }
+            contact.phone.isBlank() -> {
+                throw BlankRequiredFieldException(resources.getString(R.string.contact_without_phone_message))
+            }
+        }
     }
 
 }

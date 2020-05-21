@@ -9,7 +9,8 @@ import androidx.appcompat.app.AppCompatActivity
 import kotlinx.android.synthetic.main.activity_main.*
 import me.diegoramos.agenda.Constants
 import me.diegoramos.agenda.R
-import me.diegoramos.agenda.dao.ContactDAO
+import me.diegoramos.agenda.database.ContactsDatabase
+import me.diegoramos.agenda.database.dao.ContactDAO
 import me.diegoramos.agenda.model.Contact
 import me.diegoramos.agenda.ui.adapter.ContactItemAdapter
 import me.diegoramos.agenda.ui.adapter.listener.OnItemClickListener
@@ -17,13 +18,17 @@ import me.diegoramos.agenda.ui.adapter.listener.OnItemLongClickListener
 
 class MainActivity : AppCompatActivity(), OnItemClickListener, OnItemLongClickListener {
 
+    private var dao: ContactDAO? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         setTitle(R.string.main_activity_title)
 
+        fetchDAO()
         configureRecyclerView()
         configureFABToForm()
+
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -67,7 +72,7 @@ class MainActivity : AppCompatActivity(), OnItemClickListener, OnItemLongClickLi
             .setTitle(R.string.remove_student_title)
             .setMessage(message)
             .setPositiveButton(btnConfirm) { _, _ ->
-                ContactDAO.remove(contact)
+                dao?.remove(contact)
                 handleRemovedItemOnAdapter(position)
                 Toast.makeText(this, String.format(
                     resources.getString(R.string.removed_student_message),
@@ -89,18 +94,19 @@ class MainActivity : AppCompatActivity(), OnItemClickListener, OnItemLongClickLi
         Toast.makeText(applicationContext, R.string.operation_canceled, Toast.LENGTH_SHORT)
             .show()
 
-    private fun isCanceledResult(
-        resultCode: Int
-    ) = resultCode == Activity.RESULT_CANCELED
+    private fun isCanceledResult(resultCode: Int) = resultCode == Activity.RESULT_CANCELED
 
-    private fun isOkResult(resultCode: Int) =
-        resultCode == Activity.RESULT_OK
+    private fun isOkResult(resultCode: Int) = resultCode == Activity.RESULT_OK
 
     private fun isCreateContactRequest(requestCode: Int) =
         requestCode == Constants.CREATE_CONTACT_REQUEST_CODE
 
+    private fun fetchDAO() {
+            dao = ContactsDatabase.getAppDataBase(this)?.getContactDAO()
+    }
+
     private fun configureRecyclerView() {
-        this.activity_main_contact_list.adapter = ContactItemAdapter(ContactDAO.getAll(),
+        this.activity_main_contact_list.adapter = ContactItemAdapter(dao?.getAll()!!,
             this,
             this)
     }
