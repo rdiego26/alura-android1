@@ -8,8 +8,8 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import kotlinx.android.synthetic.main.activity_main.*
 import me.diegoramos.agenda.Constants
+import me.diegoramos.agenda.ContactsApplication
 import me.diegoramos.agenda.R
-import me.diegoramos.agenda.database.ContactsDatabase
 import me.diegoramos.agenda.database.dao.ContactDAO
 import me.diegoramos.agenda.model.Contact
 import me.diegoramos.agenda.ui.adapter.ContactItemAdapter
@@ -102,7 +102,7 @@ class MainActivity : AppCompatActivity(), OnItemClickListener, OnItemLongClickLi
         requestCode == Constants.CREATE_CONTACT_REQUEST_CODE
 
     private fun fetchDAO() {
-            dao = ContactsDatabase.getAppDataBase(this)?.getContactDAO()
+            dao = ContactsApplication.db.getContactDAO()
     }
 
     private fun configureRecyclerView() {
