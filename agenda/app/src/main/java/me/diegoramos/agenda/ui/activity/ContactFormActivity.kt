@@ -9,7 +9,6 @@ import kotlinx.android.synthetic.main.activity_contact_form.*
 import me.diegoramos.agenda.Constants
 import me.diegoramos.agenda.ContactsApplication
 import me.diegoramos.agenda.R
-import me.diegoramos.agenda.database.dao.ContactDAO
 import me.diegoramos.agenda.model.BlankRequiredFieldException
 import me.diegoramos.agenda.model.Contact
 import me.diegoramos.agenda.model.DuplicatedItemException
@@ -24,21 +23,15 @@ class ContactFormActivity : AppCompatActivity() {
     private var receivedContact: Contact? = null
     private var receivedContactPosition: Int = INVALID_POSITION
     private var isEditMode: Boolean = false
-    private var dao: ContactDAO? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_contact_form)
         setTitle(R.string.student_form_activity_title)
 
-        fetchDAO()
         bindSaveButton()
         handleFormMode()
         handleReceivedData()
-    }
-
-    private fun fetchDAO() {
-        dao = ContactsApplication.db.getContactDAO()
     }
 
     private fun handleFormMode() {
@@ -100,13 +93,13 @@ class ContactFormActivity : AppCompatActivity() {
 
     private fun handleUpdate(contact: Contact?) {
         validateAddOrUpdate(contact!!)
-        dao?.update(contact)
+        ContactsApplication.db.getContactDAO().update(contact)
         setResult(Activity.RESULT_OK, prepareResult(contact))
     }
 
     private fun handleRegister(contact: Contact?) {
         validateAddOrUpdate(contact!!)
-        dao?.save(contact)
+        ContactsApplication.db.getContactDAO().save(contact)
         setResult(Activity.RESULT_OK, prepareResult(contact))
     }
 

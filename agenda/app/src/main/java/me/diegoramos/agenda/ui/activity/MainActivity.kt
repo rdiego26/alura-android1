@@ -8,9 +8,8 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import kotlinx.android.synthetic.main.activity_main.*
 import me.diegoramos.agenda.Constants
+import me.diegoramos.agenda.ContactsApplication.Companion.db
 import me.diegoramos.agenda.R
-import me.diegoramos.agenda.database.ContactsDatabase
-import me.diegoramos.agenda.database.dao.ContactDAO
 import me.diegoramos.agenda.model.Contact
 import me.diegoramos.agenda.ui.adapter.ContactItemAdapter
 import me.diegoramos.agenda.ui.adapter.listener.OnItemClickListener
@@ -19,15 +18,11 @@ import org.jetbrains.anko.doAsync
 
 class MainActivity : AppCompatActivity(), OnItemClickListener, OnItemLongClickListener {
 
-    private lateinit var DB: ContactsDatabase
-    private var dao: ContactDAO? = null
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         setTitle(R.string.main_activity_title)
 
-        DB = ContactsDatabase.getAppDataBase(applicationContext)
         configureRecyclerView()
         configureFABToForm()
 
@@ -74,7 +69,7 @@ class MainActivity : AppCompatActivity(), OnItemClickListener, OnItemLongClickLi
             .setTitle(R.string.remove_student_title)
             .setMessage(message)
             .setPositiveButton(btnConfirm) { _, _ ->
-                dao?.remove(contact)
+                db.getContactDAO().remove(contact)
                 handleRemovedItemOnAdapter(position)
                 Toast.makeText(this, String.format(
                     resources.getString(R.string.removed_student_message),
@@ -107,7 +102,7 @@ class MainActivity : AppCompatActivity(), OnItemClickListener, OnItemLongClickLi
         val onClick = this
         val onLongClick = this
         doAsync {
-            activity_main_contact_list.adapter = ContactItemAdapter(DB.getContactDAO().getAll(),
+            activity_main_contact_list.adapter = ContactItemAdapter(db.getContactDAO().getAll(),
                 onClick,
                 onLongClick)
         }
