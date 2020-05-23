@@ -8,6 +8,7 @@ import androidx.appcompat.app.AppCompatActivity
 import kotlinx.android.synthetic.main.activity_contact_form.*
 import me.diegoramos.agenda.Constants
 import me.diegoramos.agenda.ContactsApplication
+import me.diegoramos.agenda.ContactsApplication.Companion.db
 import me.diegoramos.agenda.R
 import me.diegoramos.agenda.model.BlankRequiredFieldException
 import me.diegoramos.agenda.model.Contact
@@ -117,17 +118,19 @@ class ContactFormActivity : AppCompatActivity() {
 
     private fun validateAddOrUpdate(contact: Contact) {
         val resources = applicationContext.resources
-        val alreadyWithSameName = me.diegoramos.agenda.dao.ContactDAO.getAll().any { it.lastName == contact.lastName && it.id != contact.id }
+        val allData = db.getContactDAO().getAll()
+
+        val alreadyWithSameName = allData.any { it.lastName == contact.lastName && it.id != contact.id }
         if(alreadyWithSameName) {
             throw DuplicatedItemException(String.format( resources.getString(R.string.duplicated_item_by_name_message), contact.name))
         }
 
-        val alreadyWithSameEmail = me.diegoramos.agenda.dao.ContactDAO.getAll().any { it.email == contact.email && it.id != contact.id }
+        val alreadyWithSameEmail = allData.any { it.email == contact.email && it.id != contact.id }
         if(alreadyWithSameEmail) {
             throw DuplicatedItemException(String.format( resources.getString(R.string.duplicated_item_by_email_message), contact.email))
         }
 
-        val alreadyWithSamePhone = me.diegoramos.agenda.dao.ContactDAO.getAll().any { it.phone == contact.phone && it.id != contact.id }
+        val alreadyWithSamePhone = allData.any { it.phone == contact.phone && it.id != contact.id }
         if(alreadyWithSamePhone) {
             throw DuplicatedItemException(String.format( resources.getString(R.string.duplicated_item_by_phone_message), contact.phone))
         }
