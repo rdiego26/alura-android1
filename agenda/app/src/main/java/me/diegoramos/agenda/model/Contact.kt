@@ -10,6 +10,11 @@ class Contact (
    @PrimaryKey
    val id: UUID = UUID.randomUUID(),
    val name: String,
+   val lastName: String,
    val email: String,
    val phone: String
-) : Serializable
+) : Serializable {
+
+   fun fullName() = "$name $lastName"
+
+}

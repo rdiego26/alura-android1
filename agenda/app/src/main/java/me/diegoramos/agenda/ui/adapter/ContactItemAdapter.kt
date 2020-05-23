@@ -52,7 +52,7 @@ class ContactViewHolder(inflater: LayoutInflater, parent: ViewGroup) :
     fun bind(contact: Contact,
              itemClickListener: OnItemClickListener,
              itemLongClickListener: OnItemLongClickListener) {
-        itemView.item_contact_name.text = contact.name
+        itemView.item_contact_name.text = contact.fullName()
         itemView.item_contact_phone.text = contact.phone
         itemView.item_contact_email.text = contact.email
 

@@ -5,6 +5,7 @@
     <string name="student_form_activity_title">Novo contato</string>
     <string name="student_form_activity_edit_title">Atualizar Contato</string>
     <string name="student_form_name_hint">Nome</string>
+    <string name="student_form_last_name_hint">Sobrenome</string>
     <string name="student_form_email_hint">E-mail</string>
     <string name="student_form_phone_hint">Telefone</string>
     <string name="student_form_save_button">Salvar</string>

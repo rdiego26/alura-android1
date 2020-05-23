@@ -49,6 +49,7 @@ class ContactFormActivity : AppCompatActivity() {
             handleEdit(receivedContact as Contact)
 
             activity_contact_form_name.setText(receivedContact?.name)
+            activity_contact_form_last_name.setText(receivedContact?.lastName)
             activity_contact_form_email.setText(receivedContact?.email)
             activity_contact_form_phone.setText(receivedContact?.phone)
         }
@@ -60,6 +61,7 @@ class ContactFormActivity : AppCompatActivity() {
     private fun handleEdit(contact: Contact) {
         setTitle(R.string.student_form_activity_edit_title)
         activity_contact_form_name?.setText(contact.name)
+        activity_contact_form_last_name?.setText(contact.lastName)
         activity_contact_form_email?.setText(contact.email)
         activity_contact_form_phone?.setText(contact.phone)
         mode = FormMode.UPDATE
@@ -72,11 +74,13 @@ class ContactFormActivity : AppCompatActivity() {
             try {
                 if (mode == FormMode.REGISTER) {
                     contact = Contact(name = activity_contact_form_name?.text.toString(),
+                        lastName = activity_contact_form_last_name?.text.toString(),
                         email = activity_contact_form_email?.text.toString(),
                         phone = activity_contact_form_phone?.text.toString())
                     handleRegister(contact)
                 } else {
                     contact = Contact(id = receivedContact!!.id, name = activity_contact_form_name?.text.toString(),
+                        lastName = activity_contact_form_last_name?.text.toString(),
                         email = activity_contact_form_email?.text.toString(),
                         phone = activity_contact_form_phone?.text.toString())
                     handleUpdate(contact)
@@ -113,7 +117,7 @@ class ContactFormActivity : AppCompatActivity() {
 
     private fun validateAddOrUpdate(contact: Contact) {
         val resources = applicationContext.resources
-        val alreadyWithSameName = me.diegoramos.agenda.dao.ContactDAO.getAll().any { it.name == contact.name && it.id != contact.id }
+        val alreadyWithSameName = me.diegoramos.agenda.dao.ContactDAO.getAll().any { it.lastName == contact.lastName && it.id != contact.id }
         if(alreadyWithSameName) {
             throw DuplicatedItemException(String.format( resources.getString(R.string.duplicated_item_by_name_message), contact.name))
         }
