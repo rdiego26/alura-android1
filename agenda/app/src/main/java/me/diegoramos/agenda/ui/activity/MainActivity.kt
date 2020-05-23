@@ -8,16 +8,18 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import kotlinx.android.synthetic.main.activity_main.*
 import me.diegoramos.agenda.Constants
-import me.diegoramos.agenda.ContactsApplication
 import me.diegoramos.agenda.R
+import me.diegoramos.agenda.database.ContactsDatabase
 import me.diegoramos.agenda.database.dao.ContactDAO
 import me.diegoramos.agenda.model.Contact
 import me.diegoramos.agenda.ui.adapter.ContactItemAdapter
 import me.diegoramos.agenda.ui.adapter.listener.OnItemClickListener
 import me.diegoramos.agenda.ui.adapter.listener.OnItemLongClickListener
+import org.jetbrains.anko.doAsync
 
 class MainActivity : AppCompatActivity(), OnItemClickListener, OnItemLongClickListener {
 
+    private lateinit var DB: ContactsDatabase
     private var dao: ContactDAO? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -25,7 +27,7 @@ class MainActivity : AppCompatActivity(), OnItemClickListener, OnItemLongClickLi
         setContentView(R.layout.activity_main)
         setTitle(R.string.main_activity_title)
 
-        fetchDAO()
+        DB = ContactsDatabase.getAppDataBase(applicationContext)
         configureRecyclerView()
         configureFABToForm()
 
@@ -101,14 +103,14 @@ class MainActivity : AppCompatActivity(), OnItemClickListener, OnItemLongClickLi
     private fun isCreateContactRequest(requestCode: Int) =
         requestCode == Constants.CREATE_CONTACT_REQUEST_CODE
 
-    private fun fetchDAO() {
-            dao = ContactsApplication.db.getContactDAO()
-    }
-
     private fun configureRecyclerView() {
-        this.activity_main_contact_list.adapter = ContactItemAdapter(dao?.getAll()!!,
-            this,
-            this)
+        val onClick = this
+        val onLongClick = this
+        doAsync {
+            activity_main_contact_list.adapter = ContactItemAdapter(DB.getContactDAO().getAll(),
+                onClick,
+                onLongClick)
+        }
     }
 
     private fun configureFABToForm() {

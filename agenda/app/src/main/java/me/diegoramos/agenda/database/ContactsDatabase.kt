@@ -10,24 +10,24 @@ import me.diegoramos.agenda.database.converter.UUIDConverter
 import me.diegoramos.agenda.database.dao.ContactDAO
 import me.diegoramos.agenda.model.Contact
 
-@Database(entities = [Contact::class], version = 1, exportSchema = true)
+@Database(entities = [Contact::class], version = 1, exportSchema = false)
 @TypeConverters(UUIDConverter::class)
 abstract class ContactsDatabase : RoomDatabase() {
     abstract fun getContactDAO(): ContactDAO
 
     companion object {
-        var INSTANCE: ContactsDatabase? = null
+        private var INSTANCE: ContactsDatabase? = null
 
-        fun getAppDataBase(context: Context): ContactsDatabase? {
-            if (INSTANCE == null){
-                synchronized(ContactsDatabase::class){
+        fun getAppDataBase(context: Context): ContactsDatabase {
+            if (INSTANCE == null) {
+                synchronized(ContactsDatabase::class) {
                     INSTANCE = Room.databaseBuilder(context.applicationContext,
                         ContactsDatabase::class.java,
                         Constants.DATABASE_NAME)
                         .build()
                 }
             }
-            return INSTANCE
+            return INSTANCE as ContactsDatabase
         }
 
         fun destroyDataBase() {
