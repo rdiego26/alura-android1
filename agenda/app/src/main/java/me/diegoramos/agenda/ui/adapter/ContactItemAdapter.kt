@@ -56,9 +56,9 @@ class ContactViewHolder(inflater: LayoutInflater, parent: ViewGroup) :
              itemLongClickListener: OnItemLongClickListener) {
         itemView.item_contact_name.text = contact.fullName()
         itemView.item_contact_phone.text = db.getPhoneDAO().getAllByContact(contact.id)
-            .first { it.type == PhoneType.HOME }.number
+            .firstOrNull { it.type == PhoneType.HOME }?.number
         itemView.item_contact_mobile.text = db.getPhoneDAO().getAllByContact(contact.id)
-            .first { it.type == PhoneType.MOBILE }.number
+            .firstOrNull { it.type == PhoneType.MOBILE }?.number
         itemView.item_contact_email.text = contact.email
 
         itemView.setOnClickListener { itemClickListener.onItemClick (contact, adapterPosition) }

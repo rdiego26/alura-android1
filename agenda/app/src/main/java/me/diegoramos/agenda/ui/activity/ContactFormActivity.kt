@@ -43,10 +43,16 @@ class ContactFormActivity : AppCompatActivity() {
                 receivedData.getSerializableExtra(Constants.CONTACT_EXTRA_NAME) as Contact
             receivedContactPosition = receivedData.getIntExtra(Constants.CONTACT_POSITION_EXTRA_NAME,
                 INVALID_POSITION)
+            val phone = db.getPhoneDAO().getAllByContact(receivedContact?.id!!)
+                .firstOrNull { it.type == PhoneType.HOME }?.number
+            val mobile = db.getPhoneDAO().getAllByContact(receivedContact?.id!!)
+                .firstOrNull { it.type == PhoneType.MOBILE }?.number
 
             activity_contact_form_name.setText(receivedContact?.name)
             activity_contact_form_last_name.setText(receivedContact?.lastName)
             activity_contact_form_email.setText(receivedContact?.email)
+            activity_contact_form_phone.setText(phone)
+            activity_contact_form_mobile_phone.setText(mobile)
             mode = FormMode.UPDATE
         }
     }
@@ -82,7 +88,29 @@ class ContactFormActivity : AppCompatActivity() {
 
     private fun handleUpdate(contact: Contact?) {
         validateAddOrUpdate(contact!!)
+        val phone = db.getPhoneDAO().getAllByContact(contact.id)
+            .firstOrNull { it.type == PhoneType.HOME }
+        val mobilePhone = db.getPhoneDAO().getAllByContact(contact.id)
+            .firstOrNull { it.type == PhoneType.MOBILE }
+
         db.getContactDAO().update(contact)
+
+        if (phone == null) {
+            db.getPhoneDAO().save(Phone(number = activity_contact_form_phone?.text.toString(),
+                type = PhoneType.HOME, contactId = contact.id))
+        } else {
+            db.getPhoneDAO().update(Phone(number = activity_contact_form_phone?.text.toString(),
+                contactId = contact.id, id = phone.id))
+        }
+
+        if (mobilePhone == null) {
+            db.getPhoneDAO().save(Phone(number = activity_contact_form_mobile_phone?.text.toString(),
+                type = PhoneType.MOBILE, contactId = contact.id))
+        } else {
+            db.getPhoneDAO().update(Phone(number = activity_contact_form_mobile_phone?.text.toString(),
+                contactId = contact.id, id = mobilePhone.id))
+        }
+
         setResult(Activity.RESULT_OK, prepareResult(contact))
     }
 

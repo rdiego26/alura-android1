@@ -16,7 +16,7 @@ interface PhoneDAO {
     @Delete
     fun remove(phone: Phone)
     
-    @Update
+    @Update(onConflict = OnConflictStrategy.REPLACE)
     fun update(phone: Phone)
 
 }

@@ -14,7 +14,6 @@ import me.diegoramos.agenda.model.Contact
 import me.diegoramos.agenda.ui.adapter.ContactItemAdapter
 import me.diegoramos.agenda.ui.adapter.listener.OnItemClickListener
 import me.diegoramos.agenda.ui.adapter.listener.OnItemLongClickListener
-import org.jetbrains.anko.doAsync
 
 class MainActivity : AppCompatActivity(), OnItemClickListener, OnItemLongClickListener {
 
@@ -101,11 +100,9 @@ class MainActivity : AppCompatActivity(), OnItemClickListener, OnItemLongClickLi
     private fun configureRecyclerView() {
         val onClick = this
         val onLongClick = this
-        doAsync {
-            activity_main_contact_list.adapter = ContactItemAdapter(db.getContactDAO().getAll(),
-                onClick,
-                onLongClick)
-        }
+        activity_main_contact_list.adapter = ContactItemAdapter(db.getContactDAO().getAll(),
+            onClick,
+            onLongClick)
     }
 
     private fun configureFABToForm() {
