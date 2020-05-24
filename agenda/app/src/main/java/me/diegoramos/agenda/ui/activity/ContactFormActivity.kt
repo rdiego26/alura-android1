@@ -51,9 +51,8 @@ class ContactFormActivity : AppCompatActivity() {
             activity_contact_form_name.setText(receivedContact?.name)
             activity_contact_form_last_name.setText(receivedContact?.lastName)
             activity_contact_form_email.setText(receivedContact?.email)
-            activity_contact_form_phone.setText(receivedContact?.phone)
-            activity_contact_form_phone.setText(receivedContact?.phone)
-            activity_contact_form_mobile_phone.setText(receivedContact?.mobile)
+//            activity_contact_form_phone.setText(receivedContact?.phone)
+//            activity_contact_form_mobile_phone.setText(receivedContact?.mobile)
             mode = FormMode.UPDATE
         }
     }
@@ -79,16 +78,12 @@ class ContactFormActivity : AppCompatActivity() {
                 if (mode == FormMode.REGISTER) {
                     contact = Contact(name = activity_contact_form_name?.text.toString(),
                         lastName = activity_contact_form_last_name?.text.toString(),
-                        email = activity_contact_form_email?.text.toString(),
-                        phone = activity_contact_form_phone?.text.toString(),
-                        mobile = activity_contact_form_mobile_phone?.text.toString())
+                        email = activity_contact_form_email?.text.toString())
                     handleRegister(contact)
                 } else {
                     contact = Contact(id = receivedContact!!.id, name = activity_contact_form_name?.text.toString(),
                         lastName = activity_contact_form_last_name?.text.toString(),
-                        email = activity_contact_form_email?.text.toString(),
-                        phone = activity_contact_form_phone?.text.toString(),
-                        mobile = activity_contact_form_mobile_phone?.text.toString())
+                        email = activity_contact_form_email?.text.toString())
                     handleUpdate(contact)
                 }
 
@@ -135,15 +130,15 @@ class ContactFormActivity : AppCompatActivity() {
             throw DuplicatedItemException(String.format( resources.getString(R.string.duplicated_item_by_email_message), contact.email))
         }
 
-        val alreadyWithSamePhone = allData.any { it.phone == contact.phone && it.id != contact.id }
-        if(alreadyWithSamePhone) {
-            throw DuplicatedItemException(String.format( resources.getString(R.string.duplicated_item_by_phone_message), contact.phone))
-        }
-
-        val alreadyWithSameMobile = allData.any { it.mobile == contact.mobile && it.id != contact.id }
-        if(alreadyWithSameMobile) {
-            throw DuplicatedItemException(String.format( resources.getString(R.string.duplicated_item_by_mobile_phone_message), contact.mobile))
-        }
+//        val alreadyWithSamePhone = allData.any { it.phone == contact.phone && it.id != contact.id }
+//        if(alreadyWithSamePhone) {
+//            throw DuplicatedItemException(String.format( resources.getString(R.string.duplicated_item_by_phone_message), contact.phone))
+//        }
+//
+//        val alreadyWithSameMobile = allData.any { it.mobile == contact.mobile && it.id != contact.id }
+//        if(alreadyWithSameMobile) {
+//            throw DuplicatedItemException(String.format( resources.getString(R.string.duplicated_item_by_mobile_phone_message), contact.mobile))
+//        }
 
         when {
             contact.name.isBlank() -> {
@@ -151,9 +146,6 @@ class ContactFormActivity : AppCompatActivity() {
             }
             contact.email.isBlank() -> {
                 throw BlankRequiredFieldException(resources.getString(R.string.contact_without_email_message))
-            }
-            contact.phone.isBlank() -> {
-                throw BlankRequiredFieldException(resources.getString(R.string.contact_without_phone_message))
             }
         }
     }

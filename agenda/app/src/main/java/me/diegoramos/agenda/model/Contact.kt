@@ -11,9 +11,7 @@ class Contact (
    val id: UUID = UUID.randomUUID(),
    val name: String,
    val lastName: String,
-   val email: String,
-   val phone: String,
-   val mobile: String
+   val email: String
 ) : Serializable {
 
    fun fullName() = "$name $lastName"

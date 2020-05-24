@@ -4,6 +4,7 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.item_contact.view.*
+import me.diegoramos.agenda.ContactsApplication.Companion.db
 import me.diegoramos.agenda.R
 import me.diegoramos.agenda.model.Contact
 import me.diegoramos.agenda.ui.adapter.listener.OnItemClickListener
@@ -53,8 +54,8 @@ class ContactViewHolder(inflater: LayoutInflater, parent: ViewGroup) :
              itemClickListener: OnItemClickListener,
              itemLongClickListener: OnItemLongClickListener) {
         itemView.item_contact_name.text = contact.fullName()
-        itemView.item_contact_phone.text = contact.phone
-        itemView.item_contact_mobile.text = contact.mobile
+        itemView.item_contact_phone.text = db.getPhoneDAO().getAllByContact(contact.id).first().number
+//        itemView.item_contact_mobile.text = contact.mobile
         itemView.item_contact_email.text = contact.email
 
         itemView.setOnClickListener { itemClickListener.onItemClick (contact, adapterPosition) }
