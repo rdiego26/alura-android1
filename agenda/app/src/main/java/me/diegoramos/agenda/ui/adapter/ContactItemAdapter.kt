@@ -54,6 +54,7 @@ class ContactViewHolder(inflater: LayoutInflater, parent: ViewGroup) :
              itemLongClickListener: OnItemLongClickListener) {
         itemView.item_contact_name.text = contact.fullName()
         itemView.item_contact_phone.text = contact.phone
+        itemView.item_contact_mobile.text = contact.mobile
         itemView.item_contact_email.text = contact.email
 
         itemView.setOnClickListener { itemClickListener.onItemClick (contact, adapterPosition) }

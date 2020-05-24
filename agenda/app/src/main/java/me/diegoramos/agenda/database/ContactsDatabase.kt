@@ -7,7 +7,7 @@ import me.diegoramos.agenda.database.converter.UUIDConverter
 import me.diegoramos.agenda.database.dao.ContactDAO
 import me.diegoramos.agenda.model.Contact
 
-@Database(entities = [Contact::class], version = 2, exportSchema = false)
+@Database(entities = [Contact::class], version = 3, exportSchema = false)
 @TypeConverters(UUIDConverter::class)
 abstract class ContactsDatabase : RoomDatabase() {
     abstract fun getContactDAO(): ContactDAO

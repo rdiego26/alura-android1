@@ -11,6 +11,12 @@ class Migrations {
                 database.execSQL("ALTER TABLE Contact ADD COLUMN last_name TEXT")
             }
         }
+
+        val MIGRATION_2_3: Migration = object : Migration(2, 3) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL("ALTER TABLE Contact ADD COLUMN mobile TEXT")
+            }
+        }
     }
 
 }

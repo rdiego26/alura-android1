@@ -8,6 +8,7 @@
     <string name="student_form_last_name_hint">Sobrenome</string>
     <string name="student_form_email_hint">E-mail</string>
     <string name="student_form_phone_hint">Telefone</string>
+    <string name="student_form_mobile_phone_hint">Celular</string>
     <string name="student_form_save_button">Salvar</string>
     <string name="student_list_context_menu_remove">Remover</string>
     <string name="removed_student_canceled">Operação cancelada!</string>
@@ -19,6 +20,7 @@
     <string name="duplicated_item_by_name_message">Já existe outro contato com o nome %1$s</string>
     <string name="duplicated_item_by_email_message">Já existe outro contato com o email %1$s</string>
     <string name="duplicated_item_by_phone_message">Já existe outro contato com o telefone %1$s</string>
+    <string name="duplicated_item_by_mobile_phone_message">Já existe outro contato com o celular %1$s</string>
     <string name="operation_canceled">Operação cancelada pelo usuário</string>
 
     <string name="contact_without_name_message">Campo nome é obrigatório</string>

@@ -17,7 +17,7 @@ open class ContactsApplication: Application()  {
         db = Room.databaseBuilder(applicationContext, ContactsDatabase::class.java,
                 Constants.DATABASE_NAME)
             .allowMainThreadQueries()
-            .addMigrations(Migrations.MIGRATION_1_2)
+            .addMigrations(Migrations.MIGRATION_1_2, Migrations.MIGRATION_2_3)
             .build()
     }
 
