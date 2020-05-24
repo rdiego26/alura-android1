@@ -9,6 +9,8 @@ import kotlinx.android.synthetic.main.activity_contact_form.*
 import me.diegoramos.agenda.Constants
 import me.diegoramos.agenda.ContactsApplication.Companion.db
 import me.diegoramos.agenda.R
+import me.diegoramos.agenda.asyncTask.CustomTask
+import me.diegoramos.agenda.asyncTask.TaskDelegate
 import me.diegoramos.agenda.model.*
 
 class ContactFormActivity : AppCompatActivity() {
@@ -43,17 +45,23 @@ class ContactFormActivity : AppCompatActivity() {
                 receivedData.getSerializableExtra(Constants.CONTACT_EXTRA_NAME) as Contact
             receivedContactPosition = receivedData.getIntExtra(Constants.CONTACT_POSITION_EXTRA_NAME,
                 INVALID_POSITION)
-            val phone = db.getPhoneDAO().getAllByContact(receivedContact?.id!!)
-                .firstOrNull { it.type == PhoneType.HOME }?.number
-            val mobile = db.getPhoneDAO().getAllByContact(receivedContact?.id!!)
-                .firstOrNull { it.type == PhoneType.MOBILE }?.number
 
-            activity_contact_form_name.setText(receivedContact?.name)
-            activity_contact_form_last_name.setText(receivedContact?.lastName)
-            activity_contact_form_email.setText(receivedContact?.email)
-            activity_contact_form_phone.setText(phone)
-            activity_contact_form_mobile_phone.setText(mobile)
-            mode = FormMode.UPDATE
+            CustomTask(object : TaskDelegate {
+                override fun background() {
+                    val phone = db.getPhoneDAO().getAllByContact(receivedContact?.id!!)
+                        .firstOrNull { it.type == PhoneType.HOME }?.number
+                    val mobile = db.getPhoneDAO().getAllByContact(receivedContact?.id!!)
+                        .firstOrNull { it.type == PhoneType.MOBILE }?.number
+
+                    activity_contact_form_name.setText(receivedContact?.name)
+                    activity_contact_form_last_name.setText(receivedContact?.lastName)
+                    activity_contact_form_email.setText(receivedContact?.email)
+                    activity_contact_form_phone.setText(phone)
+                    activity_contact_form_mobile_phone.setText(mobile)
+
+                    mode = FormMode.UPDATE
+                }
+            }).execute()
         }
     }
 
@@ -88,41 +96,54 @@ class ContactFormActivity : AppCompatActivity() {
 
     private fun handleUpdate(contact: Contact?) {
         validateAddOrUpdate(contact!!)
-        val phone = db.getPhoneDAO().getAllByContact(contact.id)
-            .firstOrNull { it.type == PhoneType.HOME }
-        val mobilePhone = db.getPhoneDAO().getAllByContact(contact.id)
-            .firstOrNull { it.type == PhoneType.MOBILE }
 
-        db.getContactDAO().update(contact)
+        CustomTask(object : TaskDelegate {
+            override fun background() {
+                val phone = db.getPhoneDAO().getAllByContact(contact.id)
+                    .firstOrNull { it.type == PhoneType.HOME }
+                val mobilePhone = db.getPhoneDAO().getAllByContact(contact.id)
+                    .firstOrNull { it.type == PhoneType.MOBILE }
 
-        if (phone == null) {
-            db.getPhoneDAO().save(Phone(number = activity_contact_form_phone?.text.toString(),
-                type = PhoneType.HOME, contactId = contact.id))
-        } else {
-            db.getPhoneDAO().update(Phone(number = activity_contact_form_phone?.text.toString(),
-                contactId = contact.id, id = phone.id))
-        }
+                db.getContactDAO().update(contact)
 
-        if (mobilePhone == null) {
-            db.getPhoneDAO().save(Phone(number = activity_contact_form_mobile_phone?.text.toString(),
-                type = PhoneType.MOBILE, contactId = contact.id))
-        } else {
-            db.getPhoneDAO().update(Phone(number = activity_contact_form_mobile_phone?.text.toString(),
-                contactId = contact.id, id = mobilePhone.id))
-        }
+                if (phone == null) {
+                    db.getPhoneDAO().save(Phone(number = activity_contact_form_phone?.text.toString(),
+                        type = PhoneType.HOME, contactId = contact.id))
+                } else {
+                    db.getPhoneDAO().update(Phone(number = activity_contact_form_phone?.text.toString(),
+                        contactId = contact.id, id = phone.id))
+                }
+
+                if (mobilePhone == null) {
+                    db.getPhoneDAO().save(Phone(number = activity_contact_form_mobile_phone?.text.toString(),
+                        type = PhoneType.MOBILE, contactId = contact.id))
+                } else {
+                    db.getPhoneDAO().update(Phone(number = activity_contact_form_mobile_phone?.text.toString(),
+                        contactId = contact.id, id = mobilePhone.id))
+                }
+
+            }
+        }).execute()
 
         setResult(Activity.RESULT_OK, prepareResult(contact))
+
     }
 
     private fun handleRegister(contact: Contact?) {
         validateAddOrUpdate(contact!!)
-        db.getContactDAO().save(contact)
-        db.getPhoneDAO().save(Phone(number = activity_contact_form_phone?.text.toString(),
-            type = PhoneType.HOME, contactId = contact.id))
-        db.getPhoneDAO().save(Phone(number = activity_contact_form_mobile_phone?.text.toString(),
-            type = PhoneType.MOBILE, contactId = contact.id))
+
+        CustomTask(object : TaskDelegate {
+            override fun background() {
+                db.getContactDAO().save(contact)
+                db.getPhoneDAO().save(Phone(number = activity_contact_form_phone?.text.toString(),
+                    type = PhoneType.HOME, contactId = contact.id))
+                db.getPhoneDAO().save(Phone(number = activity_contact_form_mobile_phone?.text.toString(),
+                    type = PhoneType.MOBILE, contactId = contact.id))
+            }
+        }).execute()
 
         setResult(Activity.RESULT_OK, prepareResult(contact))
+
     }
 
     private fun prepareResult(contact: Contact): Intent {
@@ -135,26 +156,34 @@ class ContactFormActivity : AppCompatActivity() {
 
     private fun validateAddOrUpdate(contact: Contact) {
         val resources = applicationContext.resources
-        val allData = db.getContactDAO().getAll()
 
-        val alreadyWithSameName = allData.any { it.lastName == contact.lastName && it.id != contact.id }
-        if(alreadyWithSameName) {
-            throw DuplicatedItemException(String.format( resources.getString(R.string.duplicated_item_by_name_message), contact.name))
-        }
+        CustomTask(object : TaskDelegate {
+            override fun background() {
 
-        val alreadyWithSameEmail = allData.any { it.email == contact.email && it.id != contact.id }
-        if(alreadyWithSameEmail) {
-            throw DuplicatedItemException(String.format( resources.getString(R.string.duplicated_item_by_email_message), contact.email))
-        }
+                val allData = db.getContactDAO().getAll()
 
-        when {
-            contact.name.isBlank() -> {
-                throw BlankRequiredFieldException(resources.getString(R.string.contact_without_name_message))
+                val alreadyWithSameName = allData.any { it.lastName == contact.lastName && it.id != contact.id }
+                if(alreadyWithSameName) {
+                    throw DuplicatedItemException(String.format( resources.getString(R.string.duplicated_item_by_name_message), contact.name))
+                }
+
+                val alreadyWithSameEmail = allData.any { it.email == contact.email && it.id != contact.id }
+                if(alreadyWithSameEmail) {
+                    throw DuplicatedItemException(String.format( resources.getString(R.string.duplicated_item_by_email_message), contact.email))
+                }
+
+                when {
+                    contact.name.isBlank() -> {
+                        throw BlankRequiredFieldException(resources.getString(R.string.contact_without_name_message))
+                    }
+                    contact.email.isBlank() -> {
+                        throw BlankRequiredFieldException(resources.getString(R.string.contact_without_email_message))
+                    }
+                }
+
             }
-            contact.email.isBlank() -> {
-                throw BlankRequiredFieldException(resources.getString(R.string.contact_without_email_message))
-            }
-        }
+        }).execute()
+
     }
 
 }

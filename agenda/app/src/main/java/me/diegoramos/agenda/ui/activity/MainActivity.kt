@@ -10,6 +10,8 @@ import kotlinx.android.synthetic.main.activity_main.*
 import me.diegoramos.agenda.Constants
 import me.diegoramos.agenda.ContactsApplication.Companion.db
 import me.diegoramos.agenda.R
+import me.diegoramos.agenda.asyncTask.CustomTask
+import me.diegoramos.agenda.asyncTask.TaskDelegate
 import me.diegoramos.agenda.model.Contact
 import me.diegoramos.agenda.ui.adapter.ContactItemAdapter
 import me.diegoramos.agenda.ui.adapter.listener.OnItemClickListener
@@ -68,7 +70,11 @@ class MainActivity : AppCompatActivity(), OnItemClickListener, OnItemLongClickLi
             .setTitle(R.string.remove_student_title)
             .setMessage(message)
             .setPositiveButton(btnConfirm) { _, _ ->
-                db.getContactDAO().remove(contact)
+                CustomTask(object : TaskDelegate {
+                    override fun background() {
+                        db.getContactDAO().remove(contact)
+                    }
+                }).execute()
                 handleRemovedItemOnAdapter(position)
                 Toast.makeText(this, String.format(
                     resources.getString(R.string.removed_student_message),
@@ -100,9 +106,15 @@ class MainActivity : AppCompatActivity(), OnItemClickListener, OnItemLongClickLi
     private fun configureRecyclerView() {
         val onClick = this
         val onLongClick = this
-        activity_main_contact_list.adapter = ContactItemAdapter(db.getContactDAO().getAll(),
-            onClick,
-            onLongClick)
+
+        CustomTask(object : TaskDelegate {
+            override fun background() {
+                activity_main_contact_list.adapter = ContactItemAdapter(db.getContactDAO().getAll(),
+                    onClick,
+                    onLongClick)
+            }
+        }).execute()
+
     }
 
     private fun configureFABToForm() {

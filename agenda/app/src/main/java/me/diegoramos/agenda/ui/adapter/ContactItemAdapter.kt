@@ -4,10 +4,8 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.item_contact.view.*
-import me.diegoramos.agenda.ContactsApplication.Companion.db
 import me.diegoramos.agenda.R
 import me.diegoramos.agenda.model.Contact
-import me.diegoramos.agenda.model.PhoneType
 import me.diegoramos.agenda.ui.adapter.listener.OnItemClickListener
 import me.diegoramos.agenda.ui.adapter.listener.OnItemLongClickListener
 import java.util.*
@@ -55,11 +53,11 @@ class ContactViewHolder(inflater: LayoutInflater, parent: ViewGroup) :
              itemClickListener: OnItemClickListener,
              itemLongClickListener: OnItemLongClickListener) {
         itemView.item_contact_name.text = contact.fullName()
-        itemView.item_contact_phone.text = db.getPhoneDAO().getAllByContact(contact.id)
-            .firstOrNull { it.type == PhoneType.HOME }?.number
-        itemView.item_contact_mobile.text = db.getPhoneDAO().getAllByContact(contact.id)
-            .firstOrNull { it.type == PhoneType.MOBILE }?.number
-        itemView.item_contact_email.text = contact.email
+//        itemView.item_contact_phone.text = db.getPhoneDAO().getAllByContact(contact.id)
+//            .firstOrNull { it.type == PhoneType.HOME }?.number
+//        itemView.item_contact_mobile.text = db.getPhoneDAO().getAllByContact(contact.id)
+//            .firstOrNull { it.type == PhoneType.MOBILE }?.number
+//        itemView.item_contact_email.text = contact.email
 
         itemView.setOnClickListener { itemClickListener.onItemClick (contact, adapterPosition) }
         itemView.setOnLongClickListener {
