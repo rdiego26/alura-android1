@@ -41,9 +41,6 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
     implementation 'com.google.android.material:material:1.1.0'
 
-    // Anko Commons
-    implementation "org.jetbrains.anko:anko-commons:0.10.5"
-
     // Room - https://developer.android.com/topic/libraries/architecture/room
     def room_version = '2.2.5'
     implementation "androidx.room:room-runtime:$room_version"

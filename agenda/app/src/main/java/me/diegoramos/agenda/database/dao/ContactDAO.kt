@@ -36,11 +36,6 @@ interface ContactDAO {
                 throw DuplicatedItemException(String.format( resources.getString(R.string.duplicated_item_by_email_message), contact.email))
             }
 
-//            val alreadyWithSamePhone = ContactDAO.getAll().any { it.phone == contact.phone && it.id != contact.id }
-//            if(alreadyWithSamePhone) {
-//                throw DuplicatedItemException(String.format( resources.getString(R.string.duplicated_item_by_phone_message), contact.phone))
-//            }
-
             when {
                 contact.name.isBlank() -> {
                     throw BlankRequiredFieldException(resources.getString(R.string.contact_without_name_message))
@@ -48,9 +43,6 @@ interface ContactDAO {
                 contact.email.isBlank() -> {
                     throw BlankRequiredFieldException(resources.getString(R.string.contact_without_email_message))
                 }
-//                contact.phone.isBlank() -> {
-//                    throw BlankRequiredFieldException(resources.getString(R.string.contact_without_phone_message))
-//                }
             }
         }
     }

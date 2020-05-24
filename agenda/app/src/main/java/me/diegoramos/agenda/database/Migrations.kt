@@ -23,6 +23,9 @@ class Migrations {
                 database.execSQL("CREATE TABLE IF NOT EXISTS `Contact_new` (`id` TEXT NOT NULL, `name` TEXT NOT NULL, `lastName` TEXT NOT NULL, `email` TEXT NOT NULL, PRIMARY KEY(`id`))")
                 database.execSQL("INSERT INTO `Contact_new`(`id`, `name`, `lastName`, `email`) " +
                         "SELECT `id`, `name`, `lastName`, `email` FROM `Contact`")
+
+                database.execSQL("CREATE TABLE IF NOT EXISTS `Phone` (`id` INTEGER NOT NULL, `number` TEXT NOT NULL, `type` TEXT NOT NULL, `contactId` TEXT NOT NULL, PRIMARY KEY(`id`))")
+
                 database.execSQL("INSERT INTO Phone(`number`, `contactId`)" +
                         "SELECT `phone`, `id` FROM `Contact`")
 

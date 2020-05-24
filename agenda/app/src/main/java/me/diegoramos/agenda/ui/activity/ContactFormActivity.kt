@@ -9,9 +9,7 @@ import kotlinx.android.synthetic.main.activity_contact_form.*
 import me.diegoramos.agenda.Constants
 import me.diegoramos.agenda.ContactsApplication.Companion.db
 import me.diegoramos.agenda.R
-import me.diegoramos.agenda.model.BlankRequiredFieldException
-import me.diegoramos.agenda.model.Contact
-import me.diegoramos.agenda.model.DuplicatedItemException
+import me.diegoramos.agenda.model.*
 
 class ContactFormActivity : AppCompatActivity() {
 
@@ -46,29 +44,15 @@ class ContactFormActivity : AppCompatActivity() {
             receivedContactPosition = receivedData.getIntExtra(Constants.CONTACT_POSITION_EXTRA_NAME,
                 INVALID_POSITION)
 
-//            handleEdit(receivedContact as Contact)
-
             activity_contact_form_name.setText(receivedContact?.name)
             activity_contact_form_last_name.setText(receivedContact?.lastName)
             activity_contact_form_email.setText(receivedContact?.email)
-//            activity_contact_form_phone.setText(receivedContact?.phone)
-//            activity_contact_form_mobile_phone.setText(receivedContact?.mobile)
             mode = FormMode.UPDATE
         }
     }
 
     private fun hasReceivedContact(intent: Intent) =
         intent.hasExtra(Constants.CONTACT_EXTRA_NAME)
-
-//    private fun handleEdit(contact: Contact) {
-//        setTitle(R.string.student_form_activity_edit_title)
-//        activity_contact_form_name?.setText(contact.name)
-//        activity_contact_form_last_name?.setText(contact.lastName)
-//        activity_contact_form_email?.setText(contact.email)
-//        activity_contact_form_phone?.setText(contact.phone)
-//        activity_contact_form_mobile_phone.setText(receivedContact?.mobile)
-//        mode = FormMode.UPDATE
-//    }
 
     private fun bindSaveButton() {
         activity_contact_form_button.setOnClickListener {
@@ -105,6 +89,11 @@ class ContactFormActivity : AppCompatActivity() {
     private fun handleRegister(contact: Contact?) {
         validateAddOrUpdate(contact!!)
         db.getContactDAO().save(contact)
+        db.getPhoneDAO().save(Phone(number = activity_contact_form_phone?.text.toString(),
+            type = PhoneType.HOME, contactId = contact.id))
+        db.getPhoneDAO().save(Phone(number = activity_contact_form_mobile_phone?.text.toString(),
+            type = PhoneType.MOBILE, contactId = contact.id))
+
         setResult(Activity.RESULT_OK, prepareResult(contact))
     }
 
@@ -129,16 +118,6 @@ class ContactFormActivity : AppCompatActivity() {
         if(alreadyWithSameEmail) {
             throw DuplicatedItemException(String.format( resources.getString(R.string.duplicated_item_by_email_message), contact.email))
         }
-
-//        val alreadyWithSamePhone = allData.any { it.phone == contact.phone && it.id != contact.id }
-//        if(alreadyWithSamePhone) {
-//            throw DuplicatedItemException(String.format( resources.getString(R.string.duplicated_item_by_phone_message), contact.phone))
-//        }
-//
-//        val alreadyWithSameMobile = allData.any { it.mobile == contact.mobile && it.id != contact.id }
-//        if(alreadyWithSameMobile) {
-//            throw DuplicatedItemException(String.format( resources.getString(R.string.duplicated_item_by_mobile_phone_message), contact.mobile))
-//        }
 
         when {
             contact.name.isBlank() -> {

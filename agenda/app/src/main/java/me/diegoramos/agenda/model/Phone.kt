@@ -10,7 +10,7 @@ import java.util.*
 @Entity
 class Phone(
     @PrimaryKey(autoGenerate = true)
-    val id: Int,
+    val id: Int? = null,
     val number: String,
     @ColumnInfo(defaultValue = "HOME")
     val type: PhoneType = PhoneType.HOME,
