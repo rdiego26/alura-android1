@@ -13,6 +13,7 @@ import me.diegoramos.agenda.R
 import me.diegoramos.agenda.asyncTask.CustomTask
 import me.diegoramos.agenda.asyncTask.TaskDelegate
 import me.diegoramos.agenda.model.Contact
+import me.diegoramos.agenda.model.ContactAndPhones
 import me.diegoramos.agenda.ui.adapter.ContactItemAdapter
 import me.diegoramos.agenda.ui.adapter.listener.OnItemClickListener
 import me.diegoramos.agenda.ui.adapter.listener.OnItemLongClickListener
@@ -49,15 +50,15 @@ class MainActivity : AppCompatActivity(), OnItemClickListener, OnItemLongClickLi
         super.onActivityResult(requestCode, resultCode, data)
     }
 
-    override fun onItemClick(contact: Contact, position: Int) {
+    override fun onItemClick(item: ContactAndPhones, position: Int) {
         val intent = Intent(applicationContext, ContactFormActivity::class.java)
-        intent.putExtra(Constants.CONTACT_EXTRA_NAME, contact)
+        intent.putExtra(Constants.CONTACT_EXTRA_NAME, item)
         intent.putExtra(Constants.CONTACT_POSITION_EXTRA_NAME, position)
         startActivityForResult(intent, Constants.UPDATE_CONTACT_REQUEST_CODE)
     }
 
-    override fun onItemLongClick(contact: Contact, position: Int) {
-        dialogToRemove(contact, position)
+    override fun onItemLongClick(item: ContactAndPhones, position: Int) {
+        dialogToRemove(item.contact, position)
     }
 
     private fun dialogToRemove(contact: Contact, position: Int) {
@@ -137,7 +138,7 @@ class MainActivity : AppCompatActivity(), OnItemClickListener, OnItemLongClickLi
 
 
     private fun handleAddedItemOnAdapter(data: Intent) {
-        val receivedContact: Contact = data.getSerializableExtra(Constants.CONTACT_EXTRA_NAME) as Contact
+        val receivedContact: ContactAndPhones = data.getSerializableExtra(Constants.CONTACT_EXTRA_NAME) as ContactAndPhones
         ((this.activity_main_contact_list.adapter) as ContactItemAdapter).addContact(receivedContact)
         this.activity_main_contact_list.adapter?.notifyDataSetChanged()
 
@@ -145,7 +146,7 @@ class MainActivity : AppCompatActivity(), OnItemClickListener, OnItemLongClickLi
     }
 
     private fun handleUpdatedItemOnAdapter(data: Intent) {
-        val receivedContact: Contact = data.getSerializableExtra(Constants.CONTACT_EXTRA_NAME) as Contact
+        val receivedContact: ContactAndPhones = data.getSerializableExtra(Constants.CONTACT_EXTRA_NAME) as ContactAndPhones
         val receivedPosition: Int = data.getIntExtra(Constants.CONTACT_POSITION_EXTRA_NAME, -1)
         ((this.activity_main_contact_list.adapter) as ContactItemAdapter).updateContact(receivedContact, receivedPosition)
         this.activity_main_contact_list.adapter?.notifyDataSetChanged()
@@ -157,7 +158,7 @@ class MainActivity : AppCompatActivity(), OnItemClickListener, OnItemLongClickLi
         ((this.activity_main_contact_list.adapter) as ContactItemAdapter).removeContact(position)
     }
 
-    private fun handleSavedContactFeedback(contact: Contact) =
-        Toast.makeText(this, "Contact ${contact.name} saved!", Toast.LENGTH_LONG).show()
+    private fun handleSavedContactFeedback(item: ContactAndPhones) =
+        Toast.makeText(this, "Contact ${item.contact.name} saved!", Toast.LENGTH_LONG).show()
 
 }

@@ -162,12 +162,12 @@ class ContactFormActivity : AppCompatActivity() {
 
                 val allData = db.getContactDAO().getAll()
 
-                val alreadyWithSameName = allData.any { it.lastName == contact.lastName && it.id != contact.id }
+                val alreadyWithSameName = allData.any { it.contact.lastName == contact.lastName && it.contact.id != contact.id }
                 if(alreadyWithSameName) {
                     throw DuplicatedItemException(String.format( resources.getString(R.string.duplicated_item_by_name_message), contact.name))
                 }
 
-                val alreadyWithSameEmail = allData.any { it.email == contact.email && it.id != contact.id }
+                val alreadyWithSameEmail = allData.any { it.contact.email == contact.email && it.contact.id != contact.id }
                 if(alreadyWithSameEmail) {
                     throw DuplicatedItemException(String.format( resources.getString(R.string.duplicated_item_by_email_message), contact.email))
                 }

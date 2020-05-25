@@ -1,8 +1,8 @@
 package me.diegoramos.agenda.ui.adapter.listener
 
-import me.diegoramos.agenda.model.Contact
+import me.diegoramos.agenda.model.ContactAndPhones
 
 interface OnItemClickListener {
 
-    fun onItemClick(contact: Contact, position: Int)
+    fun onItemClick(item: ContactAndPhones, position: Int)
 }

@@ -6,6 +6,7 @@ import me.diegoramos.agenda.R
 import me.diegoramos.agenda.dao.ContactDAO
 import me.diegoramos.agenda.model.BlankRequiredFieldException
 import me.diegoramos.agenda.model.Contact
+import me.diegoramos.agenda.model.ContactAndPhones
 import me.diegoramos.agenda.model.DuplicatedItemException
 
 @Dao
@@ -14,8 +15,8 @@ interface ContactDAO {
     @Insert
     fun save(contact: Contact)
 
-    @Query("SELECT * FROM Contact ORDER BY Contact.name DESC")
-    fun getAll(): MutableList<Contact>
+    @Query("SELECT * FROM Contact C LEFT JOIN Phone P ON(P.contactId = C.id) ORDER BY C.name DESC")
+    fun getAll(): MutableList<ContactAndPhones>
 
     @Delete
     fun remove(contact: Contact)

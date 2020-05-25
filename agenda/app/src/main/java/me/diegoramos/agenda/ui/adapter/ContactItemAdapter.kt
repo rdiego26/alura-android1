@@ -5,12 +5,12 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.item_contact.view.*
 import me.diegoramos.agenda.R
-import me.diegoramos.agenda.model.Contact
+import me.diegoramos.agenda.model.ContactAndPhones
 import me.diegoramos.agenda.ui.adapter.listener.OnItemClickListener
 import me.diegoramos.agenda.ui.adapter.listener.OnItemLongClickListener
 import java.util.*
 
-class ContactItemAdapter(private val data: MutableList<Contact>,
+class ContactItemAdapter(private val data: MutableList<ContactAndPhones>,
                          private val itemClickListener: OnItemClickListener,
                          private val itemLongClickListener: OnItemLongClickListener
 ): RecyclerView.Adapter<ContactViewHolder>() {
@@ -24,13 +24,13 @@ class ContactItemAdapter(private val data: MutableList<Contact>,
     override fun onBindViewHolder(holder: ContactViewHolder, position: Int) =
         holder.bind(data[position], itemClickListener, itemLongClickListener)
 
-    fun addContact(contact: Contact) {
-        data.add(contact)
+    fun addContact(item: ContactAndPhones) {
+        data.add(item)
         notifyDataSetChanged()
     }
 
-    fun updateContact(contact: Contact, position: Int) {
-        data[position] = contact
+    fun updateContact(item: ContactAndPhones, position: Int) {
+        data[position] = item
         notifyItemChanged(position)
     }
 
@@ -49,19 +49,19 @@ class ContactItemAdapter(private val data: MutableList<Contact>,
 class ContactViewHolder(inflater: LayoutInflater, parent: ViewGroup) :
     RecyclerView.ViewHolder(inflater.inflate(R.layout.item_contact, parent, false)) {
 
-    fun bind(contact: Contact,
+    fun bind(item: ContactAndPhones,
              itemClickListener: OnItemClickListener,
              itemLongClickListener: OnItemLongClickListener) {
-        itemView.item_contact_name.text = contact.fullName()
+        itemView.item_contact_name.text = item.contact.fullName()
 //        itemView.item_contact_phone.text = db.getPhoneDAO().getAllByContact(contact.id)
 //            .firstOrNull { it.type == PhoneType.HOME }?.number
 //        itemView.item_contact_mobile.text = db.getPhoneDAO().getAllByContact(contact.id)
 //            .firstOrNull { it.type == PhoneType.MOBILE }?.number
-//        itemView.item_contact_email.text = contact.email
+        itemView.item_contact_email.text = item.contact.email
 
-        itemView.setOnClickListener { itemClickListener.onItemClick (contact, adapterPosition) }
+        itemView.setOnClickListener { itemClickListener.onItemClick (item, adapterPosition) }
         itemView.setOnLongClickListener {
-            itemLongClickListener.onItemLongClick(contact, adapterPosition)
+            itemLongClickListener.onItemLongClick(item, adapterPosition)
             true
         }
     }
