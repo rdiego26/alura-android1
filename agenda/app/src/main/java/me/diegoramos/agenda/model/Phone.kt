@@ -4,7 +4,7 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
-import java.util.*
+import java.io.Serializable
 
 
 @Entity
@@ -21,8 +21,8 @@ class Phone(
         onUpdate = ForeignKey.CASCADE,
         onDelete = ForeignKey.CASCADE
     )
-    val contactId: UUID
-)
+    val contactId: String
+) : Serializable
 
 enum class PhoneType {
     HOME, MOBILE, WORK, OTHERS

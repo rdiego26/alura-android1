@@ -15,10 +15,10 @@ import me.diegoramos.agenda.asyncTask.TaskDelegate
 import me.diegoramos.agenda.model.Contact
 import me.diegoramos.agenda.model.ContactAndPhones
 import me.diegoramos.agenda.ui.adapter.ContactItemAdapter
-import me.diegoramos.agenda.ui.adapter.listener.OnItemClickListener
-import me.diegoramos.agenda.ui.adapter.listener.OnItemLongClickListener
 
-class MainActivity : AppCompatActivity(), OnItemClickListener, OnItemLongClickListener {
+class MainActivity : AppCompatActivity(), ContactItemAdapter.Events {
+
+    lateinit var contactList: MutableList<ContactAndPhones>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -50,15 +50,16 @@ class MainActivity : AppCompatActivity(), OnItemClickListener, OnItemLongClickLi
         super.onActivityResult(requestCode, resultCode, data)
     }
 
-    override fun onItemClick(item: ContactAndPhones, position: Int) {
+    override fun onItemClickListener(item: ContactAndPhones, position: Int) {
         val intent = Intent(applicationContext, ContactFormActivity::class.java)
         intent.putExtra(Constants.CONTACT_EXTRA_NAME, item)
         intent.putExtra(Constants.CONTACT_POSITION_EXTRA_NAME, position)
         startActivityForResult(intent, Constants.UPDATE_CONTACT_REQUEST_CODE)
     }
 
-    override fun onItemLongClick(item: ContactAndPhones, position: Int) {
+    override fun onItemLongClickListener(item: ContactAndPhones, position: Int): Boolean {
         dialogToRemove(item.contact, position)
+        return false
     }
 
     private fun dialogToRemove(contact: Contact, position: Int) {
@@ -75,6 +76,7 @@ class MainActivity : AppCompatActivity(), OnItemClickListener, OnItemLongClickLi
                     override fun background() {
                         db.getContactDAO().remove(contact)
                     }
+                    override fun onFinish() = Unit
                 }).execute()
                 handleRemovedItemOnAdapter(position)
                 Toast.makeText(this, String.format(
@@ -105,17 +107,21 @@ class MainActivity : AppCompatActivity(), OnItemClickListener, OnItemLongClickLi
         requestCode == Constants.CREATE_CONTACT_REQUEST_CODE
 
     private fun configureRecyclerView() {
-        val onClick = this
-        val onLongClick = this
 
         CustomTask(object : TaskDelegate {
             override fun background() {
-                activity_main_contact_list.adapter = ContactItemAdapter(db.getContactDAO().getAll(),
-                    onClick,
-                    onLongClick)
+                contactList = mutableListOf()
+
+                db.getContactDAO().getAll().map {
+                    val phones = db.getPhoneDAO().getAllByContact(it.id)
+                    contactList.add(ContactAndPhones(contact = it, phones = phones))
+                }
+            }
+
+            override fun onFinish() {
+                activity_main_contact_list.adapter = ContactItemAdapter(contactList, this@MainActivity)
             }
         }).execute()
-
     }
 
     private fun configureFABToForm() {

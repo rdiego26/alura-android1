@@ -10,7 +10,7 @@ import java.util.*
 @Entity
 class Contact (
    @PrimaryKey
-   val id: UUID = UUID.randomUUID(),
+   val id: String = UUID.randomUUID().toString(),
    val name: String,
    val lastName: String,
    val email: String

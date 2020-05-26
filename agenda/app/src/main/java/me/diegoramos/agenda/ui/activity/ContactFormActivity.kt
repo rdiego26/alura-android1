@@ -20,7 +20,7 @@ class ContactFormActivity : AppCompatActivity() {
     }
 
     private var mode: FormMode = FormMode.REGISTER
-    private var receivedContact: Contact? = null
+    private var receivedContact: ContactAndPhones? = null
     private var receivedContactPosition: Int = INVALID_POSITION
     private var isEditMode: Boolean = false
 
@@ -42,25 +42,29 @@ class ContactFormActivity : AppCompatActivity() {
         if (isEditMode) {
             val receivedData = intent
             receivedContact =
-                receivedData.getSerializableExtra(Constants.CONTACT_EXTRA_NAME) as Contact
+                receivedData.getSerializableExtra(Constants.CONTACT_EXTRA_NAME) as ContactAndPhones
             receivedContactPosition = receivedData.getIntExtra(Constants.CONTACT_POSITION_EXTRA_NAME,
                 INVALID_POSITION)
 
             CustomTask(object : TaskDelegate {
                 override fun background() {
-                    val phone = db.getPhoneDAO().getAllByContact(receivedContact?.id!!)
-                        .firstOrNull { it.type == PhoneType.HOME }?.number
-                    val mobile = db.getPhoneDAO().getAllByContact(receivedContact?.id!!)
-                        .firstOrNull { it.type == PhoneType.MOBILE }?.number
-
-                    activity_contact_form_name.setText(receivedContact?.name)
-                    activity_contact_form_last_name.setText(receivedContact?.lastName)
-                    activity_contact_form_email.setText(receivedContact?.email)
+                    val phone = receivedContact?.contact?.id?.let {
+                        db.getPhoneDAO().getAllByContact(it)
+                            .firstOrNull { it.type == PhoneType.HOME }?.number
+                    }
+                    val mobile = receivedContact?.contact?.id?.let {
+                        db.getPhoneDAO().getAllByContact(it)
+                            .firstOrNull { it.type == PhoneType.MOBILE }?.number
+                    }
+                    activity_contact_form_name.setText(receivedContact?.contact?.name)
+                    activity_contact_form_last_name.setText(receivedContact?.contact?.lastName)
+                    activity_contact_form_email.setText(receivedContact?.contact?.email)
                     activity_contact_form_phone.setText(phone)
                     activity_contact_form_mobile_phone.setText(mobile)
 
                     mode = FormMode.UPDATE
                 }
+                override fun onFinish() = Unit
             }).execute()
         }
     }
@@ -71,18 +75,25 @@ class ContactFormActivity : AppCompatActivity() {
     private fun bindSaveButton() {
         activity_contact_form_button.setOnClickListener {
             val contact: Contact?
+            val contactAndPhones: ContactAndPhones?
+            val phone = Phone(type = PhoneType.HOME, number = activity_contact_form_phone?.text.toString(),
+                contactId = receivedContact?.contact?.id!!)
+            val mobile = Phone(type = PhoneType.MOBILE, number = activity_contact_form_mobile_phone?.text.toString(),
+                contactId = receivedContact?.contact?.id!!)
 
             try {
                 if (mode == FormMode.REGISTER) {
                     contact = Contact(name = activity_contact_form_name?.text.toString(),
                         lastName = activity_contact_form_last_name?.text.toString(),
                         email = activity_contact_form_email?.text.toString())
-                    handleRegister(contact)
+                    contactAndPhones = ContactAndPhones(contact = contact, phones = listOf(phone, mobile))
+                    handleRegister(contactAndPhones)
                 } else {
-                    contact = Contact(id = receivedContact!!.id, name = activity_contact_form_name?.text.toString(),
+                    contact = Contact(id = receivedContact?.contact!!.id, name = activity_contact_form_name?.text.toString(),
                         lastName = activity_contact_form_last_name?.text.toString(),
                         email = activity_contact_form_email?.text.toString())
-                    handleUpdate(contact)
+                    contactAndPhones = ContactAndPhones(contact = contact, phones = listOf(phone, mobile))
+                    handleUpdate(contactAndPhones)
                 }
 
                 finish()
@@ -94,67 +105,69 @@ class ContactFormActivity : AppCompatActivity() {
         }
     }
 
-    private fun handleUpdate(contact: Contact?) {
-        validateAddOrUpdate(contact!!)
+    private fun handleUpdate(item: ContactAndPhones) {
+        validateAddOrUpdate(item)
 
         CustomTask(object : TaskDelegate {
             override fun background() {
-                val phone = db.getPhoneDAO().getAllByContact(contact.id)
+                val phone = db.getPhoneDAO().getAllByContact(item.contact.id)
                     .firstOrNull { it.type == PhoneType.HOME }
-                val mobilePhone = db.getPhoneDAO().getAllByContact(contact.id)
+                val mobilePhone = db.getPhoneDAO().getAllByContact(item.contact.id)
                     .firstOrNull { it.type == PhoneType.MOBILE }
 
-                db.getContactDAO().update(contact)
+                db.getContactDAO().update(item.contact)
 
                 if (phone == null) {
                     db.getPhoneDAO().save(Phone(number = activity_contact_form_phone?.text.toString(),
-                        type = PhoneType.HOME, contactId = contact.id))
+                        type = PhoneType.HOME, contactId = item.contact.id))
                 } else {
                     db.getPhoneDAO().update(Phone(number = activity_contact_form_phone?.text.toString(),
-                        contactId = contact.id, id = phone.id))
+                        contactId = item.contact.id, id = phone.id))
                 }
 
                 if (mobilePhone == null) {
                     db.getPhoneDAO().save(Phone(number = activity_contact_form_mobile_phone?.text.toString(),
-                        type = PhoneType.MOBILE, contactId = contact.id))
+                        type = PhoneType.MOBILE, contactId = item.contact.id))
                 } else {
                     db.getPhoneDAO().update(Phone(number = activity_contact_form_mobile_phone?.text.toString(),
-                        contactId = contact.id, id = mobilePhone.id))
+                        contactId = item.contact.id, id = mobilePhone.id))
                 }
 
             }
+            override fun onFinish() = Unit
         }).execute()
 
-        setResult(Activity.RESULT_OK, prepareResult(contact))
+        setResult(Activity.RESULT_OK, prepareResult(item))
 
     }
 
-    private fun handleRegister(contact: Contact?) {
-        validateAddOrUpdate(contact!!)
+    private fun handleRegister(item: ContactAndPhones) {
+        validateAddOrUpdate(item)
 
         CustomTask(object : TaskDelegate {
             override fun background() {
-                db.getContactDAO().save(contact)
+                db.getContactDAO().save(item.contact)
                 db.getPhoneDAO().save(Phone(number = activity_contact_form_phone?.text.toString(),
-                    type = PhoneType.HOME, contactId = contact.id))
+                    type = PhoneType.HOME, contactId = item.contact.id))
                 db.getPhoneDAO().save(Phone(number = activity_contact_form_mobile_phone?.text.toString(),
-                    type = PhoneType.MOBILE, contactId = contact.id))
+                    type = PhoneType.MOBILE, contactId = item.contact.id))
             }
+            override fun onFinish() = Unit
         }).execute()
 
-        setResult(Activity.RESULT_OK, prepareResult(contact))
+        setResult(Activity.RESULT_OK, prepareResult(item))
 
     }
 
-    private fun prepareResult(contact: Contact): Intent {
+    private fun prepareResult(item: ContactAndPhones): Intent {
         val intent = Intent()
-        intent.putExtra(Constants.CONTACT_EXTRA_NAME, contact)
+        intent.putExtra(Constants.CONTACT_EXTRA_NAME, item)
         intent.putExtra(Constants.CONTACT_POSITION_EXTRA_NAME, receivedContactPosition)
 
         return intent
     }
 
-    private fun validateAddOrUpdate(contact: Contact) {
+    private fun validateAddOrUpdate(item: ContactAndPhones) {
         val resources = applicationContext.resources
 
         CustomTask(object : TaskDelegate {
@@ -162,26 +175,27 @@ class ContactFormActivity : AppCompatActivity() {
 
                 val allData = db.getContactDAO().getAll()
 
-                val alreadyWithSameName = allData.any { it.contact.lastName == contact.lastName && it.contact.id != contact.id }
+                val alreadyWithSameName = allData.any { item.contact.lastName == it.lastName && item.contact.id != it.id }
                 if(alreadyWithSameName) {
-                    throw DuplicatedItemException(String.format( resources.getString(R.string.duplicated_item_by_name_message), contact.name))
+                    throw DuplicatedItemException(String.format( resources.getString(R.string.duplicated_item_by_name_message), item.contact.name))
                 }
 
-                val alreadyWithSameEmail = allData.any { it.contact.email == contact.email && it.contact.id != contact.id }
+                val alreadyWithSameEmail = allData.any { it.email == item.contact.email && it.id != item.contact.id }
                 if(alreadyWithSameEmail) {
-                    throw DuplicatedItemException(String.format( resources.getString(R.string.duplicated_item_by_email_message), contact.email))
+                    throw DuplicatedItemException(String.format( resources.getString(R.string.duplicated_item_by_email_message), item.contact.email))
                 }
 
                 when {
-                    contact.name.isBlank() -> {
+                    item.contact.name.isBlank() -> {
                         throw BlankRequiredFieldException(resources.getString(R.string.contact_without_name_message))
                     }
-                    contact.email.isBlank() -> {
+                    item.contact.email.isBlank() -> {
                         throw BlankRequiredFieldException(resources.getString(R.string.contact_without_email_message))
                     }
                 }
 
             }
+            override fun onFinish() = Unit
         }).execute()
 
     }

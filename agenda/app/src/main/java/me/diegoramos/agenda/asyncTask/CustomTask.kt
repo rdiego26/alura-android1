@@ -7,8 +7,14 @@ class CustomTask(private val delegate: TaskDelegate) : AsyncTask<Void, Void, Voi
         delegate.background()
         return null
     }
+
+    override fun onPostExecute(result: Void?) {
+        super.onPostExecute(result)
+        delegate.onFinish()
+    }
 }
 
 interface TaskDelegate {
     fun background()
+    fun onFinish()
 }
