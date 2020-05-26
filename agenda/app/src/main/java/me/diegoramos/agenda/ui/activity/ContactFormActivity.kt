@@ -23,6 +23,7 @@ class ContactFormActivity : AppCompatActivity() {
     private var receivedContact: ContactAndPhones? = null
     private var receivedContactPosition: Int = INVALID_POSITION
     private var isEditMode: Boolean = false
+    private var errorFeedback: Exception? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -48,12 +49,12 @@ class ContactFormActivity : AppCompatActivity() {
 
             CustomTask(object : TaskDelegate {
                 override fun background() {
-                    val phone = receivedContact?.contact?.id?.let {
-                        db.getPhoneDAO().getAllByContact(it)
+                    val phone = receivedContact?.contact?.id?.let { contactId ->
+                        db.getPhoneDAO().getAllByContact(contactId)
                             .firstOrNull { it.type == PhoneType.HOME }?.number
                     }
-                    val mobile = receivedContact?.contact?.id?.let {
-                        db.getPhoneDAO().getAllByContact(it)
+                    val mobile = receivedContact?.contact?.id?.let { contactId ->
+                        db.getPhoneDAO().getAllByContact(contactId)
                             .firstOrNull { it.type == PhoneType.MOBILE }?.number
                     }
                     activity_contact_form_name.setText(receivedContact?.contact?.name)
@@ -77,43 +78,34 @@ class ContactFormActivity : AppCompatActivity() {
             val contact: Contact?
             val contactAndPhones: ContactAndPhones?
 
-            try {
-                if (mode == FormMode.REGISTER) {
-                    contact = Contact(name = activity_contact_form_name?.text.toString(),
-                        lastName = activity_contact_form_last_name?.text.toString(),
-                        email = activity_contact_form_email?.text.toString())
+            if (mode == FormMode.REGISTER) {
+                contact = Contact(name = activity_contact_form_name?.text.toString(),
+                    lastName = activity_contact_form_last_name?.text.toString(),
+                    email = activity_contact_form_email?.text.toString())
 
-                    val phone = Phone(type = PhoneType.HOME, number = activity_contact_form_phone?.text.toString(),
-                        contactId = contact.id)
-                    val mobile = Phone(type = PhoneType.MOBILE, number = activity_contact_form_mobile_phone?.text.toString(),
-                        contactId = contact.id)
+                val phone = Phone(type = PhoneType.HOME, number = activity_contact_form_phone?.text.toString(),
+                    contactId = contact.id)
+                val mobile = Phone(type = PhoneType.MOBILE, number = activity_contact_form_mobile_phone?.text.toString(),
+                    contactId = contact.id)
 
-                    contactAndPhones = ContactAndPhones(contact = contact, phones = listOf(phone, mobile))
-                    handleRegister(contactAndPhones)
-                } else {
-                    val phone = Phone(type = PhoneType.HOME, number = activity_contact_form_phone?.text.toString(),
-                        contactId = receivedContact?.contact?.id!!)
-                    val mobile = Phone(type = PhoneType.MOBILE, number = activity_contact_form_mobile_phone?.text.toString(),
-                        contactId = receivedContact?.contact?.id!!)
+                contactAndPhones = ContactAndPhones(contact = contact, phones = listOf(phone, mobile))
+                validateCreate(contactAndPhones)
+            } else {
+                val phone = Phone(type = PhoneType.HOME, number = activity_contact_form_phone?.text.toString(),
+                    contactId = receivedContact?.contact?.id!!)
+                val mobile = Phone(type = PhoneType.MOBILE, number = activity_contact_form_mobile_phone?.text.toString(),
+                    contactId = receivedContact?.contact?.id!!)
 
-                    contact = Contact(id = receivedContact?.contact!!.id, name = activity_contact_form_name?.text.toString(),
-                        lastName = activity_contact_form_last_name?.text.toString(),
-                        email = activity_contact_form_email?.text.toString())
-                    contactAndPhones = ContactAndPhones(contact = contact, phones = listOf(phone, mobile))
-                    handleUpdate(contactAndPhones)
-                }
-
-                finish()
-            } catch (ex: DuplicatedItemException) {
-                Toast.makeText(this, ex.message, Toast.LENGTH_LONG).show()
-            } catch (ex: BlankRequiredFieldException) {
-                Toast.makeText(this, ex.message, Toast.LENGTH_LONG).show()
+                contact = Contact(id = receivedContact?.contact!!.id, name = activity_contact_form_name?.text.toString(),
+                    lastName = activity_contact_form_last_name?.text.toString(),
+                    email = activity_contact_form_email?.text.toString())
+                contactAndPhones = ContactAndPhones(contact = contact, phones = listOf(phone, mobile))
+                validateUpdate(contactAndPhones)
             }
         }
     }
 
     private fun handleUpdate(item: ContactAndPhones) {
-        validateAddOrUpdate(item)
 
         CustomTask(object : TaskDelegate {
             override fun background() {
@@ -141,15 +133,15 @@ class ContactFormActivity : AppCompatActivity() {
                 }
 
             }
-            override fun onFinish() = Unit
+            override fun onFinish() {
+                setResult(Activity.RESULT_OK, prepareResult(item))
+                finish()
+            }
         }).execute()
-
-        setResult(Activity.RESULT_OK, prepareResult(item))
 
     }
 
     private fun handleRegister(item: ContactAndPhones) {
-        validateAddOrUpdate(item)
 
         CustomTask(object : TaskDelegate {
             override fun background() {
@@ -159,10 +151,11 @@ class ContactFormActivity : AppCompatActivity() {
                 db.getPhoneDAO().save(Phone(number = activity_contact_form_mobile_phone?.text.toString(),
                     type = PhoneType.MOBILE, contactId = item.contact.id))
             }
-            override fun onFinish() = Unit
+            override fun onFinish() {
+                setResult(Activity.RESULT_OK, prepareResult(item))
+                finish()
+            }
         }).execute()
-
-        setResult(Activity.RESULT_OK, prepareResult(item))
 
     }
 
@@ -174,36 +167,77 @@ class ContactFormActivity : AppCompatActivity() {
         return intent
     }
 
-    private fun validateAddOrUpdate(item: ContactAndPhones) {
+    private fun validateCreate(item: ContactAndPhones) {
         val resources = applicationContext.resources
         lateinit var allData: MutableList<Contact>
 
         CustomTask(object : TaskDelegate {
             override fun background() {
+                errorFeedback = null
                 allData = db.getContactDAO().getAll()
-            }
-            override fun onFinish() {
-                val alreadyWithSameName = allData.any { item.contact.lastName == it.lastName && item.contact.id != it.id }
-                if(alreadyWithSameName) {
-                    throw DuplicatedItemException(String.format( resources.getString(R.string.duplicated_item_by_name_message), item.contact.name))
-                }
 
+                val alreadyWithSameName = allData.any { item.contact.lastName == it.lastName && item.contact.id != it.id }
                 val alreadyWithSameEmail = allData.any { it.email == item.contact.email && it.id != item.contact.id }
-                if(alreadyWithSameEmail) {
-                    throw DuplicatedItemException(String.format( resources.getString(R.string.duplicated_item_by_email_message), item.contact.email))
-                }
 
                 when {
                     item.contact.name.isBlank() -> {
-                        throw BlankRequiredFieldException(resources.getString(R.string.contact_without_name_message))
+                        errorFeedback = BlankRequiredFieldException(resources.getString(R.string.contact_without_name_message))
                     }
                     item.contact.email.isBlank() -> {
-                        throw BlankRequiredFieldException(resources.getString(R.string.contact_without_email_message))
+                        errorFeedback = BlankRequiredFieldException(resources.getString(R.string.contact_without_email_message))
                     }
+                }
+
+                if(alreadyWithSameName) {
+                    errorFeedback = DuplicatedItemException(String.format( resources.getString(R.string.duplicated_item_by_name_message), item.contact.name))
+                } else if(alreadyWithSameEmail) {
+                    errorFeedback = DuplicatedItemException(String.format( resources.getString(R.string.duplicated_item_by_email_message), item.contact.email))
+                }
+
+            }
+            override fun onFinish() {
+                if (errorFeedback != null) {
+                    Toast.makeText(applicationContext, errorFeedback?.message, Toast.LENGTH_LONG).show()
+                } else {
+                    handleRegister(item)
                 }
             }
         }).execute()
+    }
 
+    private fun validateUpdate(item: ContactAndPhones) {
+        val resources = applicationContext.resources
+        lateinit var allData: MutableList<Contact>
+
+        CustomTask(object : TaskDelegate {
+            override fun background() {
+                errorFeedback = null
+                allData = db.getContactDAO().getAll()
+
+                val alreadyWithSameEmail = allData.any { it.email == item.contact.email && it.id != item.contact.id }
+
+                when {
+                    item.contact.name.isBlank() -> {
+                        errorFeedback = BlankRequiredFieldException(resources.getString(R.string.contact_without_name_message))
+                    }
+                    item.contact.email.isBlank() -> {
+                        errorFeedback = BlankRequiredFieldException(resources.getString(R.string.contact_without_email_message))
+                    }
+                }
+
+                if(alreadyWithSameEmail) {
+                    errorFeedback = DuplicatedItemException(String.format( resources.getString(R.string.duplicated_item_by_email_message), item.contact.email))
+                }
+
+            }
+            override fun onFinish() {
+                if (errorFeedback != null) {
+                    Toast.makeText(applicationContext, errorFeedback?.message, Toast.LENGTH_LONG).show()
+                } else {
+                    handleUpdate(item)
+                }
+            }
+        }).execute()
     }
 
 }
